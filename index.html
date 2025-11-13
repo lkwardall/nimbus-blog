@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Your trusted source for evidence-based insights on longevity, hormone health, and proactive wellness. Explore articles on diet, exercise, technology, and more." />
+    <title>Discover Wellness</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0",
+    "marked": "https://cdn.jsdelivr.net/npm/marked@13.0.0/lib/marked.esm.js"
+  }
+}
+</script>
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #010202; /* Match app background */
+  }
+  /* Styles for dynamically generated article content */
+  .article-content {
+      color: #d1d5db; /* gray-300 */
+      font-size: 1.125rem; /* 18px */
+      line-height: 1.75;
+  }
+  .article-content > *:first-child {
+      margin-top: 0;
+  }
+  .article-content h2 {
+    color: white;
+    font-size: 2rem; /* 32px */
+    line-height: 2.25rem; /* 36px */
+    font-weight: 700;
+    border-bottom: 1px solid #308271;
+    padding-bottom: 0.5rem;
+    margin-top: 2.5em;
+    margin-bottom: 1.25em;
+    scroll-margin-top: 196px; /* Offset for sticky header + subheader */
+  }
+  .article-content h3 {
+    color: #e5e7eb; /* gray-200 */
+    font-size: 1.75rem; /* 28px */
+    line-height: 2rem; /* 32px */
+    font-weight: 600;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    scroll-margin-top: 196px; /* Offset for sticky header + subheader */
+  }
+  .article-content p {
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+  }
+  .article-content a {
+    color: #308271;
+    text-decoration: underline;
+    transition: color 0.2s ease-in-out;
+  }
+  .article-content a:hover {
+      color: #45a08d;
+  }
+  .article-content ul, .article-content ol {
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+      padding-left: 2em;
+  }
+  .article-content ul {
+      list-style-type: disc;
+  }
+  .article-content ol {
+      list-style-type: decimal;
+  }
+  .article-content li {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+  }
+  .article-content blockquote {
+      color: #d1d5db;
+      border-left: 4px solid #308271;
+      padding-left: 1.25em;
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+      font-style: italic;
+  }
+  .article-content strong {
+      color: #fff;
+      font-weight: 600;
+  }
+  .article-content code {
+      color: #e5e7eb;
+      background-color: #0f323e;
+      padding: 0.2em 0.4em;
+      border-radius: 6px;
+      font-size: 0.9em;
+      border: 1px solid #215b69;
+  }
+</style>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
