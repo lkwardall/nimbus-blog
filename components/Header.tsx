@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Category } from '../types';
 
@@ -9,9 +10,11 @@ interface HeaderProps {
 }
 
 const NimbusLogo: React.FC = () => (
-    <svg className="h-6 w-auto" viewBox="0 0 132 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="22" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" fontSize="24" fontWeight="bold" fill="white">Nimbus</text>
-    </svg>
+    <img
+        src="https://cdn.prod.website-files.com/6891c0aa1164f1d025c6c041/6891cba4d55c22cffb404397_main-logo.webp"
+        alt="Nimbus logo"
+        className="h-7 w-auto"
+    />
 );
 
 const MenuIcon: React.FC<{className?: string}> = ({ className }) => (
@@ -98,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ onGoHome, categories, selectedCa
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         <div className="flex-shrink-0">
-                            <a href="#" className="flex items-center" aria-label="Nimbus Home">
+                            <a href="#" onClick={(e) => { e.preventDefault(); onGoHome(); }} className="flex items-center" aria-label="Nimbus Home">
                                 <NimbusLogo />
                             </a>
                         </div>

@@ -10,6 +10,9 @@ import { Category, Article } from './types';
 import { CategoryCard } from './components/CategoryCard';
 import { ArticleDetailView } from './components/ArticleDetailView';
 
+const isArticlePublished = (article: Article) => new Date(article.publicationDate) <= new Date();
+const isDraft = (article: Article) => new Date(article.publicationDate).getFullYear() === 2099;
+
 const CategoryDetailView: React.FC<{ 
   category: Category; 
   isEditMode: boolean; 
@@ -20,33 +23,52 @@ const CategoryDetailView: React.FC<{
   const isAllView = selectedSubcategoryName === null;
 
   const sections = useMemo(() => {
-    if (isAllView) {
-      const allArticles = category.subcategories.flatMap(sub => sub.articles);
+    const processArticles = (articles: Article[]) => {
+      const uniqueArticles = Array.from(new Map(articles.map(article => [article.id, article])).values());
+
+      if (isEditMode) {
+        // In edit mode, all articles (published, scheduled, drafts) are displayed as cards.
+        return {
+          publishedArticles: uniqueArticles,
+          unpublishedArticles: [],
+        };
+      }
       
-      // Deduplicate articles by their ID to prevent showing the same article multiple times.
-      const uniqueArticles = Array.from(new Map(allArticles.map(article => [article.id, article])).values());
+      // In preview mode:
+      const published = uniqueArticles.filter(isArticlePublished);
+      // Don't show drafts in preview
+      const scheduled = uniqueArticles.filter(a => !isArticlePublished(a) && !isDraft(a));
 
-      // FIX: Explicitly type `a` as Article to resolve type inference issue.
-      const allPublished = uniqueArticles.filter((a: Article) => a.published);
-      const allUnpublished = uniqueArticles.filter((a: Article) => !a.published);
+      return {
+        publishedArticles: published,
+        unpublishedArticles: scheduled,
+      };
+    };
 
-      if (allPublished.length === 0 && allUnpublished.length === 0) return [];
-
+    if (isAllView) {
+      const allCategoryArticles = category.subcategories.flatMap(sub => sub.articles);
+      const { publishedArticles, unpublishedArticles } = processArticles(allCategoryArticles);
+      
+      if (publishedArticles.length === 0 && unpublishedArticles.length === 0) return [];
+      
       return [{
-        name: category.name, // Use category name for key, won't be displayed
-        publishedArticles: allPublished,
-        unpublishedArticles: allUnpublished,
+        name: category.name,
+        publishedArticles: publishedArticles,
+        unpublishedArticles: unpublishedArticles,
       }];
     }
-    // For specific subcategory view, filter down to just that one.
+    
     return category.subcategories
       .filter(sub => sub.name === selectedSubcategoryName)
-      .map(sub => ({
-        name: sub.name,
-        publishedArticles: sub.articles.filter(a => a.published),
-        unpublishedArticles: sub.articles.filter(a => !a.published),
-      }));
-  }, [category, selectedSubcategoryName, isAllView]);
+      .map(sub => {
+        const { publishedArticles, unpublishedArticles } = processArticles(sub.articles);
+        return {
+          name: sub.name,
+          publishedArticles: publishedArticles,
+          unpublishedArticles: unpublishedArticles,
+        };
+      });
+  }, [category, selectedSubcategoryName, isAllView, isEditMode]);
 
 
   return (
@@ -81,11 +103,16 @@ const CategoryDetailView: React.FC<{
               {section.unpublishedArticles.length > 0 && (
                 <div className={`p-6 rounded-xl bg-[#0f323e]/80 border border-white/10 ${section.publishedArticles.length > 0 ? 'mt-8' : ''}`}>
                   <h4 className="font-semibold text-lg text-white mb-4">Coming Soon</h4>
-                  <ul className="list-none space-y-2">
+                  <ul className="list-none space-y-3">
                     {section.unpublishedArticles.map(article => (
-                      <li key={article.id} className="text-gray-400 flex items-start">
-                        <svg className="w-4 h-4 mr-3 mt-1 text-[#308271] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
-                        {article.title}
+                      <li key={article.id} className="text-gray-400 flex items-start justify-between">
+                        <div className="flex items-start">
+                          <svg className="w-4 h-4 mr-3 mt-1 text-[#308271] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                          <span>{article.title}</span>
+                        </div>
+                        <span className="text-xs text-gray-500 whitespace-nowrap pl-3">
+                          {new Date(article.publicationDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -99,7 +126,7 @@ const CategoryDetailView: React.FC<{
   );
 };
 
-const EditModeToggle: React.FC<{ isEditMode: boolean; onToggle: () => void; onReset: () => void; }> = ({ isEditMode, onToggle, onReset }) => (
+const EditModeToggle: React.FC<{ isEditMode: boolean; onToggle: () => void; onReset: () => void; onCycleFeatured: () => void; onCreate: () => void; }> = ({ isEditMode, onToggle, onReset, onCycleFeatured, onCreate }) => (
     <div className="fixed bottom-4 right-4 z-50 bg-[#0f323e]/80 backdrop-blur-lg p-3 rounded-lg shadow-2xl border border-white/20 flex items-center space-x-4">
         <div className="flex items-center space-x-2">
             <span className={`text-sm font-medium ${!isEditMode ? 'text-white' : 'text-gray-400'}`}>Preview</span>
@@ -109,7 +136,11 @@ const EditModeToggle: React.FC<{ isEditMode: boolean; onToggle: () => void; onRe
             <span className={`text-sm font-medium ${isEditMode ? 'text-white' : 'text-gray-400'}`}>Edit</span>
         </div>
         {isEditMode && (
+          <div className="flex items-center space-x-2 border-l border-gray-600 pl-4">
+            <button onClick={onCreate} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Create Article</button>
+            <button onClick={onCycleFeatured} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Cycle Featured</button>
             <button onClick={onReset} className="text-xs text-gray-300 hover:text-red-400 transition-colors border border-gray-600 px-2 py-1 rounded-md">Reset Data</button>
+          </div>
         )}
     </div>
 );
@@ -147,9 +178,9 @@ const FeaturedArticleCard: React.FC<{article: Article; isEditMode: boolean; onEd
 
 
 const App: React.FC = () => {
-  const [blogData, updateArticle, resetData, updateCategory] = useBlogData();
+  const [blogData, saveArticle, resetData, updateCategory, cycleFeaturedArticle] = useBlogData();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
   const [selectedSubcategoryName, setSelectedSubcategoryName] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -158,15 +189,26 @@ const App: React.FC = () => {
     setEditingArticle(article);
   };
   
+  const handleCreateArticle = () => {
+    setEditingArticle({
+        title: '',
+        author: 'Wellness Expert',
+        publicationDate: new Date().toISOString(),
+        description: '',
+        body: '## New Section\n\nStart writing your article here.',
+        alt: '',
+    });
+  };
+  
   const handleCloseModal = () => {
     setEditingArticle(null);
   };
   
-  const handleSaveArticle = (articleId: number, updatedArticle: Partial<Article>) => {
-    updateArticle(articleId, updatedArticle);
-    // If the currently viewed article is updated, refresh its state
-    if (selectedArticle && selectedArticle.id === articleId) {
-      setSelectedArticle(prev => prev ? { ...prev, ...updatedArticle } : null);
+  const handleSaveArticle = (articleData: Partial<Article>, placements: { categoryName: string, subcategoryName: string }[]) => {
+    saveArticle(articleData, placements);
+    
+    if (selectedArticle && selectedArticle.id === articleData.id) {
+      setSelectedArticle(prev => prev ? { ...prev, ...articleData } : null);
     }
   };
   
@@ -191,14 +233,13 @@ const App: React.FC = () => {
   };
   
   const { featuredArticle, recentArticles } = useMemo(() => {
-    const allPublished = blogData
-      .flatMap(cat => cat.subcategories.flatMap(sub => sub.articles))
-      .filter(a => a.published);
-
-    allPublished.sort((a, b) => b.id - a.id);
+    const allArticles = blogData.flatMap(cat => cat.subcategories.flatMap(sub => sub.articles));
+    const allPublished = allArticles.filter(isArticlePublished);
+    const uniquePublished = Array.from(new Map(allPublished.map(a => [a.id, a])).values());
+    uniquePublished.sort((a, b) => new Date(b.publicationDate).getTime() - new Date(a.publicationDate).getTime());
     
-    const featured = allPublished.find(a => a.title.includes("Testosterone Decline")) || allPublished[0] || null;
-    const recent = allPublished.filter(a => a.id !== featured?.id).slice(0, 6);
+    const featured = uniquePublished.find(a => a.isFeatured) || uniquePublished[0] || null;
+    const recent = uniquePublished.filter(a => a.id !== featured?.id).slice(0, 6);
     
     return { featuredArticle: featured, recentArticles: recent };
   }, [blogData]);
@@ -298,11 +339,14 @@ const App: React.FC = () => {
         isEditMode={isEditMode}
         onToggle={() => setIsEditMode(!isEditMode)}
         onReset={resetData}
+        onCycleFeatured={cycleFeaturedArticle}
+        onCreate={handleCreateArticle}
       />
 
       {editingArticle && (
         <EditModal 
           article={editingArticle}
+          allCategories={blogData}
           onSave={handleSaveArticle}
           onClose={handleCloseModal}
         />

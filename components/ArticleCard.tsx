@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Article } from '../types';
 
@@ -15,8 +16,29 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isEditMode, o
     }
   };
 
+  const isScheduled = new Date(article.publicationDate) > new Date();
+  const isDraft = new Date(article.publicationDate).getFullYear() === 2099;
+
+  let statusBadge = null;
+  if (isEditMode) {
+    if (isDraft) {
+      statusBadge = (
+        <div className="absolute top-2 left-2 bg-gray-500 text-white px-2 py-0.5 rounded-full text-xs font-semibold z-10 shadow">
+          Draft
+        </div>
+      );
+    } else if (isScheduled) {
+      statusBadge = (
+        <div className="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-0.5 rounded-full text-xs font-semibold z-10 shadow">
+          Scheduled
+        </div>
+      );
+    }
+  }
+
   return (
     <div className="relative">
+      {statusBadge}
       <div 
         onClick={handleCardClick}
         className={`group block rounded-xl overflow-hidden bg-[#0f323e] hover:bg-[#215b69] transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-2xl hover:shadow-[#308271]/20 ${!isEditMode ? 'cursor-pointer' : 'cursor-default'}`}

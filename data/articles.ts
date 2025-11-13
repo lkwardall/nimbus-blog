@@ -1,4 +1,4 @@
-import { Category } from '../types';
+import { Category, Article } from '../types';
 
 let idCounter = 1;
 
@@ -33,15 +33,20 @@ Join us at Discover Wellness as we explore the future of health and empower you 
   `;
 };
 
+interface ArticleOptions {
+  date: string;
+  isFeatured?: boolean;
+  body?: string;
+}
 
-const createPublishedArticle = (title: string, subcategory: string, body: string = '') => {
+const createPublishedArticle = (title: string, subcategory: string, options: ArticleOptions): Article => {
   const cleanTitle = title.replace(/\*\*/g, '');
-  // Provide a default body if one isn't passed, but allow override for specific articles.
-  const articleBody = body || createArticleBody(); 
+  const articleBody = options.body || createArticleBody(); 
   return {
     id: idCounter++,
     title: cleanTitle,
-    published: true,
+    publicationDate: new Date(options.date).toISOString(),
+    isFeatured: options.isFeatured ?? false,
     subcategory,
     imageUrl: `https://source.unsplash.com/random/800x600?sig=${idCounter}&query=health,wellness,science`,
     alt: `An image related to the article: ${cleanTitle}`,
@@ -52,18 +57,45 @@ const createPublishedArticle = (title: string, subcategory: string, body: string
   };
 };
 
-const createUnpublishedArticle = (title: string, subcategory: string) => ({
+const createUnpublishedArticle = (title: string, subcategory: string): Article => ({
   id: idCounter++,
   title: title.replace(/"/g, ''),
-  published: false,
+  publicationDate: new Date('2099-12-31T23:59:59Z').toISOString(), // Far future date for drafts
   subcategory,
 });
+
+// --- Central Article Repository ---
+// Define each unique article once to ensure data consistency and enable content syncing.
+const allArticles = {
+  // Published Articles
+  testosteroneDecline: createPublishedArticle('**The Testosterone Decline: Why Modern Men Need Hormone Optimization More Than Ever**', "Men's Hormone Health", { date: '2024-07-25', isFeatured: true }),
+  peptidesSecretWeapon: createPublishedArticle('**Peptides: The Secret Weapon in Men’s Health & Longevity**', "Men's Hormone Health", { date: '2024-07-24' }),
+  notesOn3AMPitch: createPublishedArticle('**Notes from Me on the 3AM CEO Pitch**', 'AI in Healthcare', { date: '2024-07-23' }),
+  ultraProcessedFoods: createPublishedArticle('**Ultra-Processed Foods Associated With Depression and The Label Accuracy Of Performance Enhancing Supplements**', 'Diet', { date: '2024-07-22' }),
+  processedFoodsLifeExpectancy: createPublishedArticle('**Processed Foods, Life Expectancy, & Food Labels - Oh My!**', 'Diet', { date: '2024-07-21' }),
+  nadAndGlutathione: createPublishedArticle('**NAD⁺ and Glutathione: Two Powerhouse Molecules Every Man Should Know About**', 'Exercise', { date: '2024-07-20' }),
+  bpc157: createPublishedArticle('**BPC-157 in Sports Medicine: Promise, Precaution, and the Need for Responsible Stewardship**', 'Exercise', { date: '2024-07-19' }),
+  sittingTooLong: createPublishedArticle('**Sitting Too Long is Associated With Dementia, and Deaths Attributable to Obesity-related Cardiovascular Disease Has Increased Since 1999**', 'Longevity', { date: '2024-07-18' }),
+  youngAndNotHealthy: createPublishedArticle('**Young And Not Healthy & Probiotics Appear Safe In Depression**', 'Mental Health', { date: '2024-07-17' }),
+  beyondSixMonthsGLP1: createPublishedArticle('**Beyond the First Six Months: Why GLP-1s Alone Aren’t Enough for Lasting Weight Loss**', 'Medications', { date: '2024-07-16' }),
+
+  // Unpublished Articles
+  hairLossPillsED: createUnpublishedArticle('Can Hair Loss Pills Cause ED?', 'Hair Loss'),
+  trtAndDepression: createUnpublishedArticle('TRT and Depression?', "Men's Hormone Health"),
+  oxytocinScience: createUnpublishedArticle('Beyond Love: Unpacking the Science of Oxytocin', "Men's Hormone Health"),
+  hormoneTherapyMyths: createUnpublishedArticle('Hormone Therapy: Myths, Facts, and the Power of Personalization', "Men's Hormone Health"),
+  womensHealthInitiative: createUnpublishedArticle('Understanding the Women’s Health Initiative: What Every Woman Should Know About Hormone Therapy', "Women's Hormone Health"),
+  womensHealthTestosterone: createUnpublishedArticle('Women’s Health - Testosterone Trepidation', "Women's Hormone Health"),
+  omega3Guide: createUnpublishedArticle("How to Choose an Omega-3 Supplement: A Pharmacist's Guide", 'Diet'),
+  whoopAlly: createUnpublishedArticle('Whoop is our ally but….', 'Longevity'),
+};
+
 
 export const blogData: Category[] = [
   {
     name: 'Hair & Skin',
     subcategories: [
-      { name: 'Hair Loss', articles: [createUnpublishedArticle('Can Hair Loss Pills Cause ED?', 'Hair Loss')] },
+      { name: 'Hair Loss', articles: [allArticles.hairLossPillsED] },
       { name: 'Skin Conditions', articles: [] },
     ],
   },
@@ -73,21 +105,21 @@ export const blogData: Category[] = [
       {
         name: "Men's Hormone Health",
         articles: [
-          createPublishedArticle('**The Testosterone Decline: Why Modern Men Need Hormone Optimization More Than Ever**', "Men's Hormone Health"),
-          createPublishedArticle('**Peptides: The Secret Weapon in Men’s Health & Longevity**', "Men's Hormone Health"),
-          createUnpublishedArticle('TRT and Depression?', "Men's Hormone Health"),
-          createUnpublishedArticle('Beyond Love: Unpacking the Science of Oxytocin', "Men's Hormone Health"),
-          createUnpublishedArticle('Hormone Therapy: Myths, Facts, and the Power of Personalization', "Men's Hormone Health"),
+          allArticles.testosteroneDecline,
+          allArticles.peptidesSecretWeapon,
+          allArticles.trtAndDepression,
+          allArticles.oxytocinScience,
+          allArticles.hormoneTherapyMyths,
         ],
       },
       {
         name: "Women's Hormone Health",
         articles: [
-          createUnpublishedArticle('TRT and Depression?', "Women's Hormone Health"),
-          createUnpublishedArticle('Understanding the Women’s Health Initiative: What Every Woman Should Know About Hormone Therapy', "Women's Hormone Health"),
-          createUnpublishedArticle('Women’s Health - Testosterone Trepidation', "Women's Hormone Health"),
-          createUnpublishedArticle('Beyond Love: Unpacking the Science of Oxytocin', "Women's Hormone Health"),
-          createUnpublishedArticle('Hormone Therapy: Myths, Facts, and the Power of Personalization', "Women's Hormone Health"),
+          allArticles.trtAndDepression,
+          allArticles.womensHealthInitiative,
+          allArticles.womensHealthTestosterone,
+          allArticles.oxytocinScience,
+          allArticles.hormoneTherapyMyths,
         ],
       },
     ],
@@ -97,9 +129,7 @@ export const blogData: Category[] = [
     subcategories: [
       {
         name: 'AI in Healthcare',
-        articles: [
-          createPublishedArticle('**Notes from Me on the 3AM CEO Pitch**', 'AI in Healthcare'),
-        ],
+        articles: [allArticles.notesOn3AMPitch],
       },
     ],
   },
@@ -109,17 +139,17 @@ export const blogData: Category[] = [
       {
         name: 'Diet',
         articles: [
-          createPublishedArticle('**Ultra-Processed Foods Associated With Depression and The Label Accuracy Of Performance Enhancing Supplements**', 'Diet'),
-          createPublishedArticle('**Processed Foods, Life Expectancy, & Food Labels - Oh My!**', 'Diet'),
-          createUnpublishedArticle("How to Choose an Omega-3 Supplement: A Pharmacist's Guide", 'Diet'),
+          allArticles.ultraProcessedFoods,
+          allArticles.processedFoodsLifeExpectancy,
+          allArticles.omega3Guide,
         ],
       },
       {
         name: 'Exercise',
         articles: [
-          createUnpublishedArticle('Sitting Too Long is Associated With Dementia, and Deaths Attributable to Obesity-related Cardiovascular Disease Has Increased Since 1999', 'Exercise'),
-          createPublishedArticle('**NAD⁺ and Glutathione: Two Powerhouse Molecules Every Man Should Know About**', 'Exercise'),
-          createPublishedArticle('**BPC-157 in Sports Medicine: Promise, Precaution, and the Need for Responsible Stewardship**', 'Exercise'),
+          allArticles.sittingTooLong,
+          allArticles.nadAndGlutathione,
+          allArticles.bpc157,
         ],
       },
     ],
@@ -130,14 +160,14 @@ export const blogData: Category[] = [
       {
         name: 'Longevity',
         articles: [
-          createPublishedArticle('**Sitting Too Long is Associated With Dementia, and Deaths Attributable to Obesity-related Cardiovascular Disease Has Increased Since 1999**', 'Longevity'),
-          createPublishedArticle('**Ultra-Processed Foods Associated With Depression and The Label Accuracy Of Performance Enhancing Supplements**', 'Longevity'),
-          createPublishedArticle('**Processed Foods, Life Expectancy, & Food Labels - Oh My!**', 'Longevity'),
-          createPublishedArticle('**NAD⁺ and Glutathione: Two Powerhouse Molecules Every Man Should Know About**', 'Longevity'),
-          createPublishedArticle('**Peptides: The Secret Weapon in Men’s Health & Longevity**', 'Longevity'),
-          createPublishedArticle('**BPC-157 in Sports Medicine: Promise, Precaution, and the Need for Responsible Stewardship**', 'Longevity'),
-          createUnpublishedArticle('Whoop is our ally but….', 'Longevity'),
-          createUnpublishedArticle("How to Choose an Omega-3 Supplement: A Pharmacist's Guide", 'Longevity'),
+          allArticles.sittingTooLong,
+          allArticles.ultraProcessedFoods,
+          allArticles.processedFoodsLifeExpectancy,
+          allArticles.nadAndGlutathione,
+          allArticles.peptidesSecretWeapon,
+          allArticles.bpc157,
+          allArticles.whoopAlly,
+          allArticles.omega3Guide,
         ],
       },
     ],
@@ -145,13 +175,13 @@ export const blogData: Category[] = [
   {
     name: 'Mood & Memory',
     subcategories: [
-      { name: 'Memory Support', articles: [createUnpublishedArticle("How to Choose an Omega-3 Supplement: A Pharmacist's Guide", 'Memory Support')] },
+      { name: 'Memory Support', articles: [allArticles.omega3Guide] },
       {
         name: 'Mental Health',
         articles: [
-          createPublishedArticle('**Young And Not Healthy & Probiotics Appear Safe In Depression**', 'Mental Health'),
-          createPublishedArticle('**Ultra-Processed Foods Associated With Depression and The Label Accuracy Of Performance Enhancing Supplements**', 'Mental Health'),
-          createUnpublishedArticle('TRT and Depression?', 'Mental Health'),
+          allArticles.youngAndNotHealthy,
+          allArticles.ultraProcessedFoods,
+          allArticles.trtAndDepression,
         ],
       },
     ],
@@ -162,21 +192,21 @@ export const blogData: Category[] = [
       {
         name: "Men's Sexual Health",
         articles: [
-          createUnpublishedArticle('Can Hair Loss Pills Cause ED?', "Men's Sexual Health"),
-          createPublishedArticle('**The Testosterone Decline: Why Modern Men Need Hormone Optimization More Than Ever**', "Men's Sexual Health"),
-          createUnpublishedArticle('TRT and Depression?', "Men's Sexual Health"),
-          createUnpublishedArticle('Beyond Love: Unpacking the Science of Oxytocin', "Men's Sexual Health"),
-          createUnpublishedArticle('Hormone Therapy: Myths, Facts, and the Power of Personalization', "Men's Sexual Health"),
+          allArticles.hairLossPillsED,
+          allArticles.testosteroneDecline,
+          allArticles.trtAndDepression,
+          allArticles.oxytocinScience,
+          allArticles.hormoneTherapyMyths,
         ],
       },
       {
         name: "Women's Sexual Health",
         articles: [
-          createUnpublishedArticle('TRT and Depression?', "Women's Sexual Health"),
-          createUnpublishedArticle('Understanding the Women’s Health Initiative: What Every Woman Should Know About Hormone Therapy', "Women's Sexual Health"),
-          createUnpublishedArticle('Women’s Health - Testosterone Trepidation', "Women's Sexual Health"),
-          createUnpublishedArticle('Beyond Love: Unpacking the Science of Oxytocin', "Women's Sexual Health"),
-          createUnpublishedArticle('Hormone Therapy: Myths, Facts, and the Power of Personalization', "Women's Sexual Health"),
+          allArticles.trtAndDepression,
+          allArticles.womensHealthInitiative,
+          allArticles.womensHealthTestosterone,
+          allArticles.oxytocinScience,
+          allArticles.hormoneTherapyMyths,
         ],
       },
     ],
@@ -184,13 +214,13 @@ export const blogData: Category[] = [
   {
     name: 'Weight Loss',
     subcategories: [
-      { name: 'Medications', articles: [createPublishedArticle('**Beyond the First Six Months: Why GLP-1s Alone Aren’t Enough for Lasting Weight Loss**', 'Medications')] },
+      { name: 'Medications', articles: [allArticles.beyondSixMonthsGLP1] },
       {
         name: 'Lifestyle',
         articles: [
-          createPublishedArticle('**Sitting Too Long is Associated With Dementia, and Deaths Attributable to Obesity-related Cardiovascular Disease Has Increased Since 1999**', 'Lifestyle'),
-          createPublishedArticle('**Processed Foods, Life Expectancy, & Food Labels - Oh My!**', 'Lifestyle'),
-          createPublishedArticle('**Beyond the First Six Months: Why GLP-1s Alone Aren’t Enough for Lasting Weight Loss**', 'Lifestyle'),
+          allArticles.sittingTooLong,
+          allArticles.processedFoodsLifeExpectancy,
+          allArticles.beyondSixMonthsGLP1,
         ],
       },
     ],
@@ -202,8 +232,8 @@ export const blogData: Category[] = [
       {
         name: 'News',
         articles: [
-          createPublishedArticle('**Notes from Me on the 3AM CEO Pitch**', 'News'),
-          createUnpublishedArticle('Whoop is our ally but….', 'News'),
+          allArticles.notesOn3AMPitch,
+          allArticles.whoopAlly,
         ],
       },
     ],

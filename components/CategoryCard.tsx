@@ -15,12 +15,14 @@ const LoadingSpinner: React.FC = () => (
     </div>
 );
 
+const isArticlePublished = (publicationDate: string) => new Date(publicationDate) <= new Date();
+
 export const CategoryCard: React.FC<CategoryCardProps> = ({ category, isEditMode, onSelectCategory, onUpdateCategory }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const articlesToShow = category.subcategories
-    .flatMap(sub => sub.articles.filter(a => a.published))
+    .flatMap(sub => sub.articles.filter(a => isArticlePublished(a.publicationDate)))
     .slice(0, 3);
 
   const handleGenerateImage = async () => {

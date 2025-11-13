@@ -1,7 +1,8 @@
 export interface Article {
   id: number;
   title: string;
-  published: boolean;
+  publicationDate: string; // ISO Date string
+  isFeatured?: boolean;
   // Optional properties for published articles
   imageUrl?: string;
   alt?: string;
