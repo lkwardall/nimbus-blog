@@ -23,7 +23,27 @@
     scroll-behavior: smooth;
   }
   body {
-    background-color: #010202; /* Match app background */
+    margin: 0;
+    background-color: #010202; /* Base color for overscroll, etc. */
+  }
+  #root {
+    position: relative;
+    isolation: isolate; /* Create a new stacking context for the ::before pseudo-element */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #root::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1; /* Place it behind the content of #root */
+    background-image: 
+        radial-gradient(at 25% 15%, hsla(195, 66%, 15%, 0.7) 0px, transparent 50%),
+        radial-gradient(at 75% 85%, hsla(167, 44%, 31%, 0.5) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, hsla(195, 55%, 25%, 0.3) 0px, transparent 70%);
+    background-repeat: no-repeat;
+    background-size: 100% 100%; /* Stretch to fill the entire container, warping as needed */
   }
   /* Styles for dynamically generated article content */
   .article-content {
