@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Category, Article, Subcategory } from '../types';
 import { blogData as initialData } from '../data/articles';
@@ -110,72 +111,68 @@ export const useBlogData = (): [
 
   const saveArticle = useCallback((articleData: Partial<Article>, placements: { categoryName: string, subcategoryName: string }[]) => {
     setData(prevData => {
-        let newData = JSON.parse(JSON.stringify(prevData)); // Deep copy to avoid mutation issues
-        let articleObject: Article | null = null;
-        let isNewArticle = false;
+        let workingArticle: Article;
+        const isNewArticle = !articleData.id;
 
-        if (articleData.id) { // UPDATE existing article
-            // Find the first instance of the article to update it.
-            // Since all instances are references to the same object, updating one updates all.
-            for (const cat of newData) {
-                for (const sub of cat.subcategories) {
-                    const found = sub.articles.find(a => a.id === articleData.id);
-                    if (found) {
-                        articleObject = found;
-                        break;
-                    }
-                }
-                if (articleObject) break;
-            }
-
-            if (!articleObject) return prevData; // Should not happen
-
-            // Apply updates to the single article object
-            Object.assign(articleObject, articleData);
-
-        } else { // CREATE new article
-            isNewArticle = true;
-            const newId = Date.now();
-            articleObject = {
+        // Step 1: Create or find the definitive, updated article object.
+        if (isNewArticle) {
+            const newId = Date.now(); // Simple unique ID for client-side
+            workingArticle = {
                 id: newId,
                 title: 'New Article',
                 publicationDate: new Date().toISOString(),
                 ...articleData,
                 isFeatured: articleData.isFeatured ?? false,
             } as Article;
+        } else {
+            // Find any instance of the existing article to merge changes into.
+            let existingArticle: Article | undefined;
+            for (const cat of prevData) {
+                for (const sub of cat.subcategories) {
+                    existingArticle = sub.articles.find(a => a.id === articleData.id);
+                    if (existingArticle) break;
+                }
+                if (existingArticle) break;
+            }
+            if (!existingArticle) return prevData; // Should not happen if editing
+
+            workingArticle = { ...existingArticle, ...articleData };
         }
 
         const newPlacementKeys = new Set(placements.map(p => `${p.categoryName}|${p.subcategoryName}`));
 
-        // Iterate over all subcategories to add or remove the article reference
-        newData = newData.map((cat: Category) => ({
-            ...cat,
-            subcategories: cat.subcategories.map(sub => {
-                const currentKey = `${cat.name}|${sub.name}`;
-                const isCurrentlyPlaced = sub.articles.some(a => a.id === articleObject!.id);
-                const shouldBePlaced = newPlacementKeys.has(currentKey);
+        // Step 2: Rebuild the data structure immutably.
+        // This ensures all references to the updated article are correct.
+        const newData = prevData.map(category => {
+            let hasChanged = false;
+            const newSubcategories = category.subcategories.map(subcategory => {
+                const currentKey = `${category.name}|${subcategory.name}`;
+                const originalArticles = subcategory.articles;
+                let newArticles = originalArticles;
                 
-                let newArticles = [...sub.articles];
+                const isCurrentlyPlaced = originalArticles.some(a => a.id === workingArticle.id);
+                const shouldBePlaced = newPlacementKeys.has(currentKey);
 
-                if (isCurrentlyPlaced && !shouldBePlaced) {
-                    newArticles = newArticles.filter(a => a.id !== articleObject!.id);
-                } else if (!isCurrentlyPlaced && shouldBePlaced) {
-                    newArticles.push(articleObject!);
-                } else if (isNewArticle && shouldBePlaced) {
-                    // This case is handled by the line above, but being explicit.
-                    // If we're creating a new article, it won't be 'currently placed'.
-                } else if (!isNewArticle && isCurrentlyPlaced && shouldBePlaced) {
-                    // If updating, we need to replace the old object with the updated one
-                    // to ensure property changes (like title) are reflected.
-                    const index = newArticles.findIndex(a => a.id === articleObject!.id);
-                    if (index !== -1) {
-                        newArticles[index] = articleObject!;
-                    }
+                if (isCurrentlyPlaced && !shouldBePlaced) { // REMOVE
+                    newArticles = originalArticles.filter(a => a.id !== workingArticle.id);
+                } else if (!isCurrentlyPlaced && shouldBePlaced) { // ADD
+                    newArticles = [...originalArticles, workingArticle];
+                } else if (isCurrentlyPlaced && shouldBePlaced && !isNewArticle) { // UPDATE
+                    newArticles = originalArticles.map(a => a.id === workingArticle.id ? workingArticle : a);
                 }
-
-                return { ...sub, articles: newArticles };
-            })
-        }));
+                
+                if (newArticles !== originalArticles) {
+                    hasChanged = true;
+                    return { ...subcategory, articles: newArticles };
+                }
+                return subcategory;
+            });
+            
+            if (hasChanged) {
+                return { ...category, subcategories: newSubcategories };
+            }
+            return category;
+        });
 
         return newData;
     });

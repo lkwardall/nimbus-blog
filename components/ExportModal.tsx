@@ -54,18 +54,26 @@ const generateArticlesFileContent = (): string => {
   varNameToArticle.forEach((article, varName) => {
     const isDraft = new Date(article.publicationDate).getFullYear() === 2099;
     
+    // Helper to escape strings for code generation
+    const esc = (str: string | undefined) => (str || '').replace(/'/g, "\\'").replace(/\n/g, '\\n');
+    const escBody = (str: string | undefined) => (str || '').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+
+
     if (isDraft || !article.body) {
-      allArticlesString += `  ${varName}: createUnpublishedArticle("${article.title.replace(/"/g, '\\"')}", "${article.subcategory?.replace(/"/g, '\\"') || ''}"),\n`;
+      allArticlesString += `  ${varName}: createUnpublishedArticle("${esc(article.title)}", "${esc(article.subcategory)}"),\n`;
     } else {
-      const options = {
-        date: new Date(article.publicationDate).toISOString().split('T')[0],
-        isFeatured: article.isFeatured,
-        body: article.body,
-      };
       allArticlesString += `  ${varName}: createPublishedArticle(\n`;
-      allArticlesString += `    '${article.title.replace(/'/g, "\\'")}',\n`;
-      allArticlesString += `    '${article.subcategory?.replace(/'/g, "\\'") || ''}',\n`;
-      allArticlesString += `    { date: '${options.date}', isFeatured: ${options.isFeatured ?? false}, body: \`${options.body?.replace(/`/g, '\\`')}\` }\n`;
+      allArticlesString += `    '${esc(article.title)}',\n`;
+      allArticlesString += `    '${esc(article.subcategory)}',\n`;
+      allArticlesString += `    {\n`;
+      allArticlesString += `      date: '${new Date(article.publicationDate).toISOString().split('T')[0]}',\n`;
+      allArticlesString += `      isFeatured: ${article.isFeatured ?? false},\n`;
+      allArticlesString += `      author: '${esc(article.author)}',\n`;
+      allArticlesString += `      description: '${esc(article.description)}',\n`;
+      allArticlesString += `      imageUrl: '${esc(article.imageUrl)}',\n`;
+      allArticlesString += `      alt: '${esc(article.alt)}',\n`;
+      allArticlesString += `      body: \`${escBody(article.body)}\`\n`;
+      allArticlesString += `    }\n`;
       allArticlesString += `  ),\n`;
     }
   });
@@ -87,7 +95,7 @@ const generateArticlesFileContent = (): string => {
 
   // --- Step 4: Assemble the final file content ---
   const staticHeader = `
-import { Category, Article } from '../types';
+import { Category, Article } from '@/types';
 
 let idCounter = 1;
 
@@ -126,6 +134,10 @@ interface ArticleOptions {
   date: string;
   isFeatured?: boolean;
   body?: string;
+  author?: string;
+  description?: string;
+  imageUrl?: string;
+  alt?: string;
 }
 
 const createPublishedArticle = (title: string, subcategory: string, options: ArticleOptions): Article => {
@@ -137,10 +149,10 @@ const createPublishedArticle = (title: string, subcategory: string, options: Art
     publicationDate: new Date(options.date).toISOString(),
     isFeatured: options.isFeatured ?? false,
     subcategory,
-    imageUrl: \`https://source.unsplash.com/random/800x600?sig=\${idCounter}&query=health,wellness,science\`,
-    alt: \`An image related to the article: \${cleanTitle}\`,
-    author: 'Wellness Expert',
-    description: \`An in-depth look at "\${cleanTitle}". Key insights and research from Discover Wellness.\`,
+    imageUrl: options.imageUrl || \`https://source.unsplash.com/random/800x600?sig=\${idCounter}&query=health,wellness,science\`,
+    alt: options.alt || \`An image related to the article: \${cleanTitle}\`,
+    author: options.author || 'Wellness Expert',
+    description: options.description || \`An in-depth look at "\${cleanTitle}". Key insights and research from Discover Wellness.\`,
     link: '#',
     body: articleBody,
   };
