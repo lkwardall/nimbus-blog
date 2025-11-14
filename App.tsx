@@ -1,14 +1,15 @@
 
-// FIX: Import `useMemo`, `useState`, and `useRef` from React and correct import syntax.
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Header } from './components/Header';
 import { SubHeader } from './components/SubHeader';
+import { Footer } from './components/Footer';
 import { ArticleCard } from './components/ArticleCard';
 import { EditModal } from './components/EditModal';
 import { useBlogData } from './hooks/useBlogData';
 import { Category, Article } from './types';
 import { CategoryCard } from './components/CategoryCard';
 import { ArticleDetailView } from './components/ArticleDetailView';
+import { ExportModal } from './components/ExportModal';
 
 const isArticlePublished = (article: Article) => new Date(article.publicationDate) <= new Date();
 const isDraft = (article: Article) => new Date(article.publicationDate).getFullYear() === 2099;
@@ -126,79 +127,25 @@ const CategoryDetailView: React.FC<{
   );
 };
 
-const EditModeToggle: React.FC<{ 
-    isEditMode: boolean; 
-    onToggle: () => void; 
-    onReset: () => void; 
-    onCycleFeatured: () => void; 
-    onCreate: () => void;
-    onImport: (json: string) => Promise<void>;
-    onExport: () => string;
-}> = ({ isEditMode, onToggle, onReset, onCycleFeatured, onCreate, onImport, onExport }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleExport = () => {
-        const jsonData = onExport();
-        const blob = new Blob([jsonData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `discover-wellness-backup-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
-
-    const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const text = e.target?.result as string;
-                    if (window.confirm('Are you sure you want to import this data? This will overwrite all current content.')) {
-                        await onImport(text);
-                        alert('Data imported successfully!');
-                    }
-                } catch (error: any) {
-                    alert(`Import failed: ${error.message}`);
-                }
-            };
-            reader.readAsText(file);
-        }
-        // Reset file input value to allow importing the same file again
-        if (event.target) {
-            event.target.value = '';
-        }
-    };
-    
-    return (
-        <div className="fixed bottom-4 right-4 z-50 bg-[#0f323e]/80 backdrop-blur-lg p-3 rounded-lg shadow-2xl border border-white/20 flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-                <span className={`text-sm font-medium ${!isEditMode ? 'text-white' : 'text-gray-400'}`}>Preview</span>
-                <button onClick={onToggle} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isEditMode ? 'bg-[#308271]' : 'bg-gray-600'}`}>
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isEditMode ? 'translate-x-6' : 'translate-x-1'}`}/>
-                </button>
-                <span className={`text-sm font-medium ${isEditMode ? 'text-white' : 'text-gray-400'}`}>Edit</span>
-            </div>
-            {isEditMode && (
-              <div className="flex items-center space-x-2 border-l border-gray-600 pl-4">
-                <button onClick={onCreate} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Create</button>
-                <button onClick={onCycleFeatured} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Cycle Featured</button>
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".json" />
-                <button onClick={handleImportClick} title="Import content from a JSON file" className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Import</button>
-                <button onClick={handleExport} title="Export all content to a JSON backup file" className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Export</button>
-                <button onClick={onReset} className="text-xs text-gray-300 hover:text-red-400 transition-colors border border-gray-600 px-2 py-1 rounded-md">Reset Data</button>
-              </div>
-            )}
+const EditModeToggle: React.FC<{ isEditMode: boolean; onToggle: () => void; onReset: () => void; onCycleFeatured: () => void; onCreate: () => void; onExport: () => void; }> = ({ isEditMode, onToggle, onReset, onCycleFeatured, onCreate, onExport }) => (
+    <div className="fixed bottom-4 right-4 z-50 bg-[#0f323e]/80 backdrop-blur-lg p-3 rounded-lg shadow-2xl border border-white/20 flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+            <span className={`text-sm font-medium ${!isEditMode ? 'text-white' : 'text-gray-400'}`}>Preview</span>
+            <button onClick={onToggle} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isEditMode ? 'bg-[#308271]' : 'bg-gray-600'}`}>
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isEditMode ? 'translate-x-6' : 'translate-x-1'}`}/>
+            </button>
+            <span className={`text-sm font-medium ${isEditMode ? 'text-white' : 'text-gray-400'}`}>Edit</span>
         </div>
-    );
-};
+        {isEditMode && (
+          <div className="flex items-center space-x-2 border-l border-gray-600 pl-4">
+            <button onClick={onCreate} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Create Article</button>
+            <button onClick={onCycleFeatured} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Cycle Featured</button>
+            <button onClick={onExport} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Export Data</button>
+            <button onClick={onReset} className="text-xs text-gray-300 hover:text-red-400 transition-colors border border-gray-600 px-2 py-1 rounded-md">Reset Data</button>
+          </div>
+        )}
+    </div>
+);
 
 const FeaturedArticleCard: React.FC<{article: Article; isEditMode: boolean; onEdit: (article: Article) => void; onSelectArticle: (article: Article) => void;}> = ({ article, isEditMode, onEdit, onSelectArticle }) => {
   return (
@@ -233,12 +180,13 @@ const FeaturedArticleCard: React.FC<{article: Article; isEditMode: boolean; onEd
 
 
 const App: React.FC = () => {
-  const [blogData, saveArticle, resetData, updateCategory, cycleFeaturedArticle, importData, exportData] = useBlogData();
+  const [blogData, saveArticle, resetData, updateCategory, cycleFeaturedArticle] = useBlogData();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
   const [selectedSubcategoryName, setSelectedSubcategoryName] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const handleEditArticle = (article: Article) => {
     setEditingArticle(article);
@@ -263,9 +211,7 @@ const App: React.FC = () => {
     saveArticle(articleData, placements);
     
     if (selectedArticle && selectedArticle.id === articleData.id) {
-      // Create a new object to ensure React re-renders with the updated data
-      const updatedArticle = { ...selectedArticle, ...articleData };
-      setSelectedArticle(updatedArticle);
+      setSelectedArticle(prev => prev ? { ...prev, ...articleData } : null);
     }
   };
   
@@ -307,6 +253,15 @@ const App: React.FC = () => {
     return blogData.find(cat => cat.name === selectedCategoryName) || null;
   }, [selectedCategoryName, blogData]);
 
+  const appStyle: React.CSSProperties = {
+      backgroundColor: '#010202',
+      backgroundImage: `
+        radial-gradient(at 25% 15%, hsla(195, 66%, 15%, 0.7) 0px, transparent 50%),
+        radial-gradient(at 75% 85%, hsla(167, 44%, 31%, 0.5) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, hsla(195, 55%, 25%, 0.3) 0px, transparent 70%)
+      `,
+  };
+  
   const renderContent = () => {
     if (selectedArticle) {
       return <ArticleDetailView 
@@ -314,8 +269,6 @@ const App: React.FC = () => {
                 isEditMode={isEditMode}
                 onEditArticle={handleEditArticle}
                 onBack={() => setSelectedArticle(null)}
-                blogData={blogData}
-                onSelectArticle={handleSelectArticle}
              />;
     }
     if (selectedCategory) {
@@ -366,7 +319,7 @@ const App: React.FC = () => {
   };
   
   return (
-    <div className="flex flex-col text-white font-sans flex-grow">
+    <div style={appStyle} className="min-h-screen text-white font-sans flex flex-col">
       <Header 
         onGoHome={handleGoHome}
         categories={blogData}
@@ -380,9 +333,16 @@ const App: React.FC = () => {
           onSelectSubcategory={handleSelectSubcategory}
         />
       )}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-grow">
+
+      {/* Main Content with standard padding-bottom; article-specific padding is handled inside the component */}
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 pb-24">
         {renderContent()}
       </main>
+      
+      {/* This spacer will grow to push the footer down on short pages */}
+      <div className="flex-grow"></div>
+      
+      <Footer />
 
       <EditModeToggle 
         isEditMode={isEditMode}
@@ -390,8 +350,7 @@ const App: React.FC = () => {
         onReset={resetData}
         onCycleFeatured={cycleFeaturedArticle}
         onCreate={handleCreateArticle}
-        onImport={importData}
-        onExport={exportData}
+        onExport={() => setIsExportModalOpen(true)}
       />
 
       {editingArticle && (
@@ -401,6 +360,10 @@ const App: React.FC = () => {
           onSave={handleSaveArticle}
           onClose={handleCloseModal}
         />
+      )}
+
+      {isExportModalOpen && (
+        <ExportModal onClose={() => setIsExportModalOpen(false)} />
       )}
     </div>
   );

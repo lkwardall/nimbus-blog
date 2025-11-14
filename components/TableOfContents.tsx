@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 
 export interface Heading {
@@ -57,7 +58,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, acti
         {headings.length === 0 ? (
             <p className="text-base text-gray-400 italic">No sections in this article.</p>
         ) : (
-            <ul ref={listRef} className="space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto pr-2">
+            <ul ref={listRef} className="space-y-3 max-h-[calc(100vh-21rem)] overflow-y-auto pr-2">
                 {headings.map(heading => (
                     <li key={heading.id} data-id={heading.id}>
                         <a 

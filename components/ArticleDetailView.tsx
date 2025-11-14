@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { Article, Category } from '../types';
+import React, { useEffect, useState, useRef } from 'react';
+import { Article } from '../types';
 import { TableOfContents, Heading } from './TableOfContents';
 
 interface ArticleDetailViewProps {
@@ -8,41 +8,7 @@ interface ArticleDetailViewProps {
   isEditMode: boolean;
   onEditArticle: (article: Article) => void;
   onBack: () => void;
-  blogData: Category[];
-  onSelectArticle: (article: Article) => void;
 }
-
-const RelatedArticleCard: React.FC<{
-  article: Article;
-  onSelectArticle: (article: Article) => void;
-}> = ({ article, onSelectArticle }) => {
-  return (
-    <div 
-      onClick={() => onSelectArticle(article)}
-      className="group flex items-center space-x-4 rounded-xl bg-[#0f323e] hover:bg-[#215b69] transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-[#308271]/20 cursor-pointer overflow-hidden"
-    >
-      {article.imageUrl && (
-        <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32">
-          <img 
-            src={article.imageUrl} 
-            alt={article.alt} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-in-out"
-          />
-        </div>
-      )}
-      <div className="py-2 pr-4 flex-grow">
-        <h3 className="font-bold text-white text-md sm:text-lg leading-snug group-hover:text-[#308271] transition-colors duration-300">
-          {article.title}
-        </h3>
-        {article.author && (
-          <p className="text-xs sm:text-sm text-gray-400 mt-2">
-            By <span className="font-semibold text-gray-300">{article.author}</span>
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const LoadingContent: React.FC = () => (
     <div className="space-y-8 animate-pulse">
@@ -75,8 +41,6 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
   isEditMode,
   onEditArticle,
   onBack,
-  blogData,
-  onSelectArticle,
 }) => {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [htmlContent, setHtmlContent] = useState<string>('');
@@ -211,40 +175,6 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     };
 }, [headings, isLoading]);
 
-const relatedArticles = useMemo(() => {
-    if (!blogData || !article) return [];
-
-    // 1. Find the primary category of the current article.
-    let primaryCategoryName: string | null = null;
-    for (const cat of blogData) {
-        for (const sub of cat.subcategories) {
-            if (sub.articles.some(a => a.id === article.id)) {
-                primaryCategoryName = cat.name;
-                break;
-            }
-        }
-        if (primaryCategoryName) break;
-    }
-
-    if (!primaryCategoryName) return [];
-
-    const primaryCategory = blogData.find(cat => cat.name === primaryCategoryName);
-    if (!primaryCategory) return [];
-
-    // 2. Get all published articles from that primary category.
-    const categoryArticles = primaryCategory.subcategories
-        .flatMap(sub => sub.articles)
-        .filter(a => new Date(a.publicationDate) <= new Date());
-    
-    // 3. Remove duplicates and the current article itself.
-    const uniqueRelated = Array.from(new Map(categoryArticles.map(a => [a.id, a])).values())
-        .filter(a => a.id !== article.id);
-
-    // 4. Shuffle and take top 3.
-    return uniqueRelated.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-}, [article, blogData]);
-
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -267,73 +197,56 @@ const relatedArticles = useMemo(() => {
         )}
       </div>
 
-      <div className="lg:grid lg:grid-cols-4 lg:gap-12">
+      <div className="lg:grid lg:grid-cols-4 lg:gap-12 min-h-screen">
         {/* TOC for larger screens (sidebar) */}
         <aside className="hidden lg:block lg:col-span-1">
-          <div className="sticky top-28">
+          <div className="sticky top-52">
             <TableOfContents headings={headings} activeHeadingId={activeHeadingId} />
           </div>
         </aside>
 
         <div className="lg:col-span-3">
           {isLoading ? <LoadingContent /> : (
-            <>
-              <article>
-                <header className="mb-8">
-                  <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
-                    {article.title}
-                  </h1>
-                  {article.author && article.subcategory && (
-                    <p className="text-lg text-gray-400">
-                      By <span className="font-semibold text-gray-300">{article.author}</span> in <span className="font-semibold text-gray-300">{article.subcategory}</span>
-                    </p>
-                  )}
-                </header>
-                {article.imageUrl && (
-                  <div className="mb-8 rounded-xl overflow-hidden shadow-2xl">
-                    <img
-                      src={article.imageUrl}
-                      alt={article.alt}
-                      className="w-full h-auto object-cover max-h-[500px]"
-                    />
-                  </div>
+            <article className="pb-[28rem]">
+              <header className="mb-8">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+                  {article.title}
+                </h1>
+                {article.author && article.subcategory && (
+                  <p className="text-lg text-gray-400">
+                    By <span className="font-semibold text-gray-300">{article.author}</span> in <span className="font-semibold text-gray-300">{article.subcategory}</span>
+                  </p>
                 )}
-                
-                {/* TOC for smaller screens */}
-                <div className="lg:hidden my-8">
-                    {headings.length > 0 && (
-                        <div className="bg-[#0f323e]/80 border border-white/10 rounded-xl p-6">
-                            <TableOfContents headings={headings} activeHeadingId={activeHeadingId} />
-                        </div>
-                    )}
+              </header>
+              {article.imageUrl && (
+                <div className="mb-8 rounded-xl overflow-hidden shadow-2xl">
+                  <img
+                    src={article.imageUrl}
+                    alt={article.alt}
+                    className="w-full h-auto object-cover max-h-[500px]"
+                  />
                 </div>
-
-                {error ? (
-                    <div className="text-red-400 bg-red-900/20 p-4 rounded-lg">{error}</div>
-                ) : (
-                    <div
-                      ref={contentRef}
-                      className="article-content"
-                      dangerouslySetInnerHTML={{ __html: htmlContent }}
-                    />
-                )}
-              </article>
-              
-              {relatedArticles.length > 0 && (
-                <section className="mt-16 pt-12 border-t border-[#215b69]/50">
-                    <h2 className="text-3xl font-bold text-white mb-8">Read Next</h2>
-                    <div className="grid grid-cols-1 gap-6">
-                        {relatedArticles.map(related => (
-                            <RelatedArticleCard 
-                                key={related.id} 
-                                article={related} 
-                                onSelectArticle={onSelectArticle} 
-                            />
-                        ))}
-                    </div>
-                </section>
               )}
-            </>
+              
+              {/* TOC for smaller screens */}
+              <div className="lg:hidden my-8">
+                  {headings.length > 0 && (
+                      <div className="bg-[#0f323e]/80 border border-white/10 rounded-xl p-6">
+                          <TableOfContents headings={headings} activeHeadingId={activeHeadingId} />
+                      </div>
+                  )}
+              </div>
+
+              {error ? (
+                  <div className="text-red-400 bg-red-900/20 p-4 rounded-lg">{error}</div>
+              ) : (
+                  <div
+                    ref={contentRef}
+                    className="article-content"
+                    dangerouslySetInnerHTML={{ __html: htmlContent }}
+                  />
+              )}
+            </article>
           )}
         </div>
       </div>
