@@ -770,7 +770,7 @@ We have seen recent studies where supplements were analyzed, and there were sign
       description: "Discover how food labeling strategies—from traffic lights to warning labels—can reduce calorie intake by up to 31%, plus learn why earlier diabetes diagnosis dramatically shortens life expectancy and how ultra-processed foods increase your risk of multiple chronic diseases.",
       imageUrl: "https://images.unsplash.com/photo-1757492211495-b0af6a35579d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1757492211495-b0af6a35579d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      body: `# Effects of traffic light labelling and increased healthy range on beverage choices from vending machines
+      body: `## Effects of traffic light labelling and increased healthy range on beverage choices from vending machines
 
 Study: https://doi.org/10.1017/S1368980024000843
 
@@ -783,20 +783,15 @@ Participants were asked to choose a virtual beverage or snack from an online ven
 In the beverage test, participants in the labeling groups selected lower calorie options (22% to 31% reduction) compared to the control group, with little differences between the labeling strategies. In the snack arm, participants in the labeling groups selected lower calorie options (7% to 10%) compared to the control arm, with little difference between the labeling strategies. They found no difference when they examined the data by educational status. None of the labeling systems elicited a high amount of stigma or disgust towards those with obesity. The warning labels, followed by the physical activity and traffic lights, garnered the most attention, thought about health effects and emotions. These elements are key in instituting behavioral change.
 
 If you are familiar with behavioral economics, you know that small changes can result in significant changes. More research is necessary, but I favor simple, effective labeling to nudge (excellent book by Richard Thaler) people into making health-conscious decisions.
-
-#Godfirst #lifestylemedicine #lifestyle #Nimbushealthcare #Nimbus #health #nutrition #shopping #labels
-
 ‍
 
-# Consumption of ultra-processed foods and risk of multimorbidity of cancer and cardiometabolic diseases:
+## Consumption of ultra-processed foods and risk of multimorbidity of cancer and cardiometabolic diseases:
 
 A multinational cohort study
 
 Study: https://doi.org/10.1016/j.lanepe.2023.100771
-
 Video: https://youtu.be/gi-u-t81njo
 
-‍
 
 Multimorbidity is having more than one chronic illness. According to the CDC, 40% of American adults have two or more chronic diseases. Multimorbidity increases with age, but the young are not spared. A 2023 estimated that in the 20-29 age group, 22% had more than one chronic illness (PMID: 37189096). High intake of ultra-processed foods (UPF) is associated with several chronic illnesses, but its effect on multimorbidity is not as clear. This study examined the association of UPF intake with the co-occurrence of two chronic conditions involving cancer, cardiovascular disease, and diabetes.
 
@@ -806,7 +801,7 @@ We have covered several studies on this channel recently, showing associations o
 
 **‍**
 
-# Life expectancy associated with different ages at diagnosis of type 2 diabetes in high-income countries: 23 million person-years of observation
+## Life expectancy associated with different ages at diagnosis of type 2 diabetes in high-income countries: 23 million person-years of observation
 
 **PMID: 37708900**
 

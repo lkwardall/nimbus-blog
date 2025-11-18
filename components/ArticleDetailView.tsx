@@ -14,6 +14,64 @@ interface ArticleDetailViewProps {
   onSelectArticle: (article: Article) => void;
 }
 
+const ADS = {
+  WeightWise: {
+    keywords: ['WeightWise'],
+    template: () => `
+      <div class="article-ad-card">
+        <div class="article-ad-image-wrapper">
+          <img src="https://cdn.prod.website-files.com/6891c0aa1164f1d025c6c041/68df676fb1b51c4f89d0c6ee_Group%201000006445.webp" alt="WeightWise metabolic health" />
+        </div>
+        <div class="article-ad-content-wrapper">
+          <div class="article-ad-text-content">
+            <span class="article-ad-tag">Metabolic Health</span>
+            <div class="article-ad-title">WeightWise®: Biology, Not Willpower</div>
+            <div class="article-ad-text">Stop the cycle of regain. Access personalized GLP-1 protocols (Semaglutide & Tirzepatide) combined with expert coaching.</div>
+          </div>
+          <a href="https://nimbushealthcare.com/weightwise" target="_blank" rel="noopener noreferrer" class="article-ad-button">Check Eligibility</a>
+        </div>
+      </div>
+    `
+  },
+  NimCore: {
+    keywords: ['NimCore'],
+    template: () => `
+      <div class="article-ad-card">
+        <div class="article-ad-image-wrapper">
+          <img src="https://cdn.prod.website-files.com/6891c0aa1164f1d025c6c041/68ecd85b7d3e7aab636f529b_Mask%20group6.webp" alt="NimCore men's health" />
+        </div>
+        <div class="article-ad-content-wrapper">
+          <div class="article-ad-text-content">
+            <span class="article-ad-tag">Hormone Optimization</span>
+            <div class="article-ad-title">NimCore®: Restore Your Edge</div>
+            <div class="article-ad-text">Reclaim your energy with physician-guided testosterone and hormone therapy tailored to your bloodwork.</div>
+          </div>
+          <a href="https://nimbushealthcare.com/nimcore" target="_blank" rel="noopener noreferrer" class="article-ad-button">View Protocols</a>
+        </div>
+      </div>
+    `
+  },
+   Nimbus: { 
+    keywords: ['Nimbus Healthcare'],
+    template: () => `
+      <div class="article-ad-card">
+        <div class="article-ad-image-wrapper">
+          <img src="https://cdn.prod.website-files.com/6891c0aa1164f1d025c6c041/68a850e8115fc5e6e2a01f86_start.webp" alt="Nimbus Healthcare" />
+        </div>
+        <div class="article-ad-content-wrapper">
+          <div class="article-ad-text-content">
+            <span class="article-ad-tag">Proactive Wellness</span>
+            <div class="article-ad-title">Healthcare Designed for Longevity</div>
+            <div class="article-ad-text">We optimize systems, not just symptoms. From hair regrowth to cellular renewal, discover the Nimbus ecosystem.</div>
+          </div>
+          <a href="https://nimbushealthcare.com" target="_blank" rel="noopener noreferrer" class="article-ad-button">Start Your Journey</a>
+        </div>
+      </div>
+    `
+  }
+};
+
+
 const LoadingContent: React.FC = () => (
     <div className="space-y-8 animate-pulse">
         <div className="h-12 bg-[#215b69]/50 rounded-lg w-3/4"></div>
@@ -82,6 +140,7 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
         const headingElements = doc.querySelectorAll('h2, h3');
         const slugCounts: { [key: string]: number } = {};
 
+        // 1. Process Headings for TOC
         headingElements.forEach((el, index) => {
             const text = el.textContent || '';
             const level = parseInt(el.tagName.substring(1), 10);
@@ -111,6 +170,63 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
             el.setAttribute('id', id);
             newHeadings.push({ id, text, level });
         });
+
+        // 2. Inject Ads Logic
+        const rootNodes = Array.from(doc.body.children);
+        let currentSectionNodes: Element[] = [];
+        let adCount = 0; // Counter to limit ads
+        let firstAdType: keyof typeof ADS | null = null; // Track first ad type
+        
+        const processSection = (nodes: Element[]) => {
+            if (nodes.length === 0) return;
+            if (adCount >= 2) return; // Limit to 2 ads max per article
+            
+            const sectionText = nodes.map(n => n.textContent).join(' ');
+            
+            let adType: keyof typeof ADS | null = null;
+            if (sectionText.includes('WeightWise')) adType = 'WeightWise';
+            else if (sectionText.includes('NimCore')) adType = 'NimCore';
+            else if (sectionText.includes('Nimbus Healthcare')) adType = 'Nimbus';
+            
+            if (adType) {
+                // If this is the second ad, and the first one was specific (WeightWise or NimCore),
+                // force this one to be a general Nimbus ad.
+                if (adCount === 1 && (firstAdType === 'WeightWise' || firstAdType === 'NimCore')) {
+                    adType = 'Nimbus';
+                }
+
+                const lastNode = nodes[nodes.length - 1];
+                // Create a temporary container to convert string to node
+                const tempDiv = doc.createElement('div');
+                tempDiv.innerHTML = ADS[adType].template();
+                const adNode = tempDiv.firstElementChild;
+                
+                if (adNode && lastNode.parentNode) {
+                    lastNode.parentNode.insertBefore(adNode, lastNode.nextSibling);
+                    
+                    if (adCount === 0) {
+                        firstAdType = adType;
+                    }
+                    adCount++;
+                }
+            }
+        };
+
+        for (let i = 0; i < rootNodes.length; i++) {
+            const node = rootNodes[i];
+            // Check if this node is a header
+            if (node.tagName.match(/^H[1-6]$/)) {
+                // Processing the PREVIOUS section content
+                processSection(currentSectionNodes);
+                // Reset for new section, headers themselves are separators
+                currentSectionNodes = []; 
+            } else {
+                currentSectionNodes.push(node);
+            }
+        }
+        // Process the final section after the last header
+        processSection(currentSectionNodes);
+
 
         const processedHtml = doc.body.innerHTML;
         
