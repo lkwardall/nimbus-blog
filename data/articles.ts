@@ -919,7 +919,7 @@ Eat fish twice weekly if you can. That's the gold standard.[16] If you supplemen
       description: "Sitting more than 10 hours a day dramatically increases dementia risk, while obesity-related heart disease deaths have tripled in two decades—but small lifestyle changes can make a significant difference.",
       imageUrl: "https://images.unsplash.com/photo-1546572722-cd14ace698c1?q=80&w=1652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1546572722-cd14ace698c1?q=80&w=1652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      body: `# Sedentary Behavior and Incident Dementia Among Older Adults
+      body: `## Sedentary Behavior and Incident Dementia Among Older Adults
 
 PMID: 37698563
 
@@ -933,7 +933,7 @@ Compared to 9.27 hours of sedentary time per day, there was an 8%, 63%, and 221%
 
 There are numerous ways to prevent excess sedentary time, such as standing desks, under-desk mini bicycles, or walking treadmills. Techniques like setting reminders on your phone, the 20-8- 2 method, parking far away from your destination (if safe), taking the stairs, and putting items out of reach to force you to get up are some techniques to increase your movement throughout the day. I'll often randomly do some push-ups, jumping jacks, or squats to keep the blood moving. It helps that my Oura ring will remind me if I forget. What do you do to keep from being too sedentary?
 
-# Racial Disparities in Obesity-Related Cardiovascular Mortality in the United States: Temporal Trends From 1999 to 2020
+## Racial Disparities in Obesity-Related Cardiovascular Mortality in the United States: Temporal Trends From 1999 to 2020
 
 PMID: 37671611
 

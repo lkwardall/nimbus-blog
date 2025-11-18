@@ -7,9 +7,10 @@ interface ArticleCardProps {
   isEditMode: boolean;
   onEdit: (article: Article) => void;
   onSelectArticle: (article: Article) => void;
+  showDescription?: boolean;
 }
 
-export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isEditMode, onEdit, onSelectArticle }) => {
+export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isEditMode, onEdit, onSelectArticle, showDescription = true }) => {
   const handleCardClick = () => {
     if (!isEditMode) {
       onSelectArticle(article);
@@ -41,9 +42,9 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isEditMode, o
       {statusBadge}
       <div 
         onClick={handleCardClick}
-        className={`group block rounded-xl overflow-hidden bg-[#0f323e] hover:bg-[#215b69] transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-2xl hover:shadow-[#308271]/20 ${!isEditMode ? 'cursor-pointer' : 'cursor-default'}`}
+        className={`group block rounded-xl overflow-hidden bg-[#0f323e] hover:bg-[#215b69] transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-2xl hover:shadow-[#308271]/20 h-full ${!isEditMode ? 'cursor-pointer' : 'cursor-default'}`}
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col h-full">
           {article.imageUrl && (
               <div className="overflow-hidden relative">
                   <img 
@@ -73,7 +74,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isEditMode, o
                       </p>
                   </div>
               )}
-              {article.description && (
+              {showDescription && article.description && (
                   <p className="text-gray-300 mt-3 text-sm leading-relaxed">
                       {article.description}
                   </p>

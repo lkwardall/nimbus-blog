@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Article } from '../types';
 import { TableOfContents, Heading } from './TableOfContents';
+import { ArticleCard } from './ArticleCard';
 import { parse } from 'marked';
 
 interface ArticleDetailViewProps {
@@ -9,6 +10,8 @@ interface ArticleDetailViewProps {
   isEditMode: boolean;
   onEditArticle: (article: Article) => void;
   onBack: () => void;
+  relatedArticles?: Article[];
+  onSelectArticle: (article: Article) => void;
 }
 
 const LoadingContent: React.FC = () => (
@@ -42,6 +45,8 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
   isEditMode,
   onEditArticle,
   onBack,
+  relatedArticles = [],
+  onSelectArticle
 }) => {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [htmlContent, setHtmlContent] = useState<string>('');
@@ -207,7 +212,7 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
 
         <div className="lg:col-span-3">
           {isLoading ? <LoadingContent /> : (
-            <article className="pb-32 lg:pb-[28rem]">
+            <article className="pb-12">
               <header className="mb-8">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
                   {article.title}
@@ -256,6 +261,25 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
                     dangerouslySetInnerHTML={{ __html: htmlContent }}
                   />
               )}
+
+              {/* Read Next Section */}
+              {relatedArticles && relatedArticles.length > 0 && (
+                <section className="mt-24 border-t border-[#215b69]/30 pt-12">
+                    <h2 className="text-3xl font-bold text-white mb-8">Read Next</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {relatedArticles.map(related => (
+                        <ArticleCard
+                        key={related.id}
+                        article={related}
+                        isEditMode={false}
+                        onEdit={() => {}}
+                        onSelectArticle={onSelectArticle}
+                        showDescription={false}
+                        />
+                    ))}
+                    </div>
+                </section>
+               )}
             </article>
           )}
         </div>

@@ -304,6 +304,32 @@ const App: React.FC = () => {
     return { featuredArticle: featured, recentArticles: recent };
   }, [blogData]);
 
+  const relatedArticles = useMemo(() => {
+    if (!selectedArticle) return [];
+    
+    const parentCategory = blogData.find(cat => 
+      cat.subcategories.some(sub => 
+        sub.articles.some(a => a.id === selectedArticle.id)
+      )
+    );
+
+    if (!parentCategory) return [];
+
+    const allCategoryArticles = parentCategory.subcategories
+        .flatMap(sub => sub.articles)
+        .filter(a => 
+            a.id !== selectedArticle.id && 
+            isArticlePublished(a)
+        );
+    
+    const uniqueArticles = Array.from(new Map(allCategoryArticles.map(a => [a.id, a])).values());
+
+    // Simple shuffle and take 2-3
+    return uniqueArticles
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3);
+  }, [selectedArticle, blogData]);
+
 
   const selectedCategory = useMemo(() => {
     if (!selectedCategoryName) return null;
@@ -326,6 +352,8 @@ const App: React.FC = () => {
                 isEditMode={isEditMode}
                 onEditArticle={handleEditArticle}
                 onBack={() => setSelectedArticle(null)}
+                relatedArticles={relatedArticles}
+                onSelectArticle={handleSelectArticle}
              />;
     }
     if (selectedCategory) {
