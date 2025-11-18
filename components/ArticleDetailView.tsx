@@ -207,15 +207,25 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
 
         <div className="lg:col-span-3">
           {isLoading ? <LoadingContent /> : (
-            <article className="pb-[28rem]">
+            <article className="pb-32 lg:pb-[28rem]">
               <header className="mb-8">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
                   {article.title}
                 </h1>
                 {article.author && article.subcategory && (
-                  <p className="text-lg text-gray-400">
-                    By <span className="font-semibold text-gray-300">{article.author}</span> in <span className="font-semibold text-gray-300">{article.subcategory}</span>
-                  </p>
+                  <div className="text-lg text-gray-400 flex flex-col gap-1">
+                    <p>
+                      Written by <span className="font-semibold text-gray-300">{article.author}</span>
+                    </p>
+                    {article.reviewedBy && (
+                        <p>
+                          Reviewed by <span className="font-semibold text-gray-300">{article.reviewedBy}</span>
+                        </p>
+                    )}
+                    <p>
+                      in <span className="font-semibold text-gray-300">{article.subcategory}</span>
+                    </p>
+                  </div>
                 )}
               </header>
               {article.imageUrl && (

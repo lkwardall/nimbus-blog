@@ -133,7 +133,7 @@ export const Header: React.FC<HeaderProps> = ({ onGoHome, categories, selectedCa
                 </div>
                  {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="lg:hidden border-t border-gray-800">
+                    <div className="lg:hidden border-t border-gray-800 max-h-[calc(100vh-5rem)] overflow-y-auto">
                         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col space-y-4">
                             {mainNavLinks.map(link => (
                                  <a 

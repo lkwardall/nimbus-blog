@@ -1,3 +1,4 @@
+
 export interface Article {
   id: number;
   title: string;
@@ -7,6 +8,7 @@ export interface Article {
   imageUrl?: string;
   alt?: string;
   author?: string;
+  reviewedBy?: string;
   subcategory?: string;
   description?: string;
   link?: string;

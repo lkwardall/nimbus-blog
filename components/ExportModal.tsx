@@ -77,6 +77,9 @@ const generateArticlesFileContent = (data: Category[]): string => {
       allArticlesString += `      date: '${new Date(article.publicationDate).toISOString().split('T')[0]}',\n`;
       allArticlesString += `      isFeatured: ${article.isFeatured ?? false},\n`;
       allArticlesString += `      author: ${JSON.stringify(article.author || '')},\n`;
+      if (article.reviewedBy) {
+        allArticlesString += `      reviewedBy: ${JSON.stringify(article.reviewedBy)},\n`;
+      }
       allArticlesString += `      description: ${JSON.stringify(article.description || '')},\n`;
       allArticlesString += `      imageUrl: ${JSON.stringify(article.imageUrl || '')},\n`;
       allArticlesString += `      alt: ${JSON.stringify(article.alt || '')},\n`;
@@ -142,6 +145,7 @@ interface ArticleOptions {
   isFeatured?: boolean;
   body?: string;
   author?: string;
+  reviewedBy?: string;
   description?: string;
   imageUrl?: string;
   alt?: string;
@@ -159,6 +163,7 @@ const createPublishedArticle = (title: string, subcategory: string, options: Art
     imageUrl: options.imageUrl || \`https://source.unsplash.com/random/800x600?sig=\${idCounter}&query=health,wellness,science\`,
     alt: options.alt || \`An image related to the article: \${cleanTitle}\`,
     author: options.author || 'Wellness Expert',
+    reviewedBy: options.reviewedBy,
     description: options.description || \`An in-depth look at "\${cleanTitle}". Key insights and research from Discover Wellness.\`,
     link: '#',
     body: articleBody,

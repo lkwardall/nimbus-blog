@@ -39,6 +39,7 @@ interface ArticleOptions {
   isFeatured?: boolean;
   body?: string;
   author?: string;
+  reviewedBy?: string;
   description?: string;
   imageUrl?: string;
   alt?: string;
@@ -56,6 +57,7 @@ const createPublishedArticle = (title: string, subcategory: string, options: Art
     imageUrl: options.imageUrl || `https://source.unsplash.com/random/800x600?sig=${idCounter}&query=health,wellness,science`,
     alt: options.alt || `An image related to the article: ${cleanTitle}`,
     author: options.author || 'Wellness Expert',
+    reviewedBy: options.reviewedBy,
     description: options.description || `An in-depth look at "${cleanTitle}". Key insights and research from Discover Wellness.`,
     link: '#',
     body: articleBody,
@@ -558,7 +560,7 @@ Today, decisions about hormone therapy are best made through shared discussions 
       description: "Discover how testosterone therapy can transform women's sexual health and well-being—despite decades of misconceptions and the absence of FDA approval.",
       imageUrl: "https://images.unsplash.com/photo-1527137342181-19aab11a8ee8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1527137342181-19aab11a8ee8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      body: `# Women's Health - Testosterone Trepidation
+      body: `## Women's Health - Testosterone Trepidation
 
 There are dozens of FDA-approved testosterone products on the market - creams, gels, subcutaneous injections, intramuscular injections, pellets, and the list goes on. Walk into any pharmacy and they are bound to have at least a handful of these products on the shelves. Out of all of these FDA-approved testosterone products however, not a single one is approved for use in women.
 

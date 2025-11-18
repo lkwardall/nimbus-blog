@@ -59,9 +59,19 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isEditMode, o
                 {article.title}
               </h3>
               {article.author && article.subcategory && (
-                  <p className="text-sm text-gray-400 mt-2">
-                      By <span className="font-semibold text-gray-300">{article.author}</span> in <span className="font-semibold text-gray-300">{article.subcategory}</span>
-                  </p>
+                  <div className="mt-2 text-sm text-gray-400">
+                      <p>
+                          Written by <span className="font-semibold text-gray-300">{article.author}</span>
+                      </p>
+                      {article.reviewedBy && (
+                          <p className="mt-1">
+                              Reviewed by <span className="font-semibold text-gray-300">{article.reviewedBy}</span>
+                          </p>
+                      )}
+                      <p className="mt-1">
+                           in <span className="font-semibold text-gray-300">{article.subcategory}</span>
+                      </p>
+                  </div>
               )}
               {article.description && (
                   <p className="text-gray-300 mt-3 text-sm leading-relaxed">

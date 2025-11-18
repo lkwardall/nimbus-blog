@@ -18,12 +18,25 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, acti
   useEffect(() => {
     if (!activeHeadingId || !listRef.current) return;
 
-    const activeItem = listRef.current.querySelector(`li[data-id="${activeHeadingId}"]`);
+    const container = listRef.current;
+    const activeItem = container.querySelector(`li[data-id="${activeHeadingId}"]`) as HTMLElement;
+
     if (activeItem) {
-      activeItem.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      });
+      // Manual scroll logic to replace scrollIntoView
+      // This ensures we only scroll the container, not the whole window
+      const itemTop = activeItem.offsetTop;
+      const itemBottom = itemTop + activeItem.offsetHeight;
+      const containerTop = container.scrollTop;
+      const containerBottom = containerTop + container.clientHeight;
+
+      // If the item is above the visible area, scroll up
+      if (itemTop < containerTop) {
+        container.scrollTop = itemTop;
+      } 
+      // If the item is below the visible area, scroll down
+      else if (itemBottom > containerBottom) {
+        container.scrollTop = itemBottom - container.clientHeight;
+      }
     }
   }, [activeHeadingId]);
 
@@ -46,9 +59,6 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, acti
       top: offsetPosition,
       behavior: 'smooth'
     });
-
-    // NOTE: Removed history.pushState and window.location.hash manipulation
-    // to prevent potential security errors in sandboxed environments.
   };
 
 
@@ -58,7 +68,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, acti
         {headings.length === 0 ? (
             <p className="text-base text-gray-400 italic">No sections in this article.</p>
         ) : (
-            <ul ref={listRef} className="space-y-3 max-h-[calc(100vh-21rem)] overflow-y-auto pr-2">
+            <ul ref={listRef} className="relative space-y-3 max-h-96 lg:max-h-[calc(100vh-21rem)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
                 {headings.map(heading => (
                     <li key={heading.id} data-id={heading.id}>
                         <a 

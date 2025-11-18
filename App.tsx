@@ -376,7 +376,7 @@ const App: React.FC = () => {
   };
   
   return (
-    <div style={appStyle} className="min-h-screen text-white font-sans flex flex-col">
+    <div style={appStyle} className="min-h-screen w-full text-white font-sans flex flex-col">
       <Header 
         onGoHome={handleGoHome}
         categories={blogData}
