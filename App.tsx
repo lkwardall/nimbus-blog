@@ -363,7 +363,7 @@ const App: React.FC = () => {
       )}
 
       {isExportModalOpen && (
-        <ExportModal onClose={() => setIsExportModalOpen(false)} />
+        <ExportModal onClose={() => setIsExportModalOpen(false)} data={blogData} />
       )}
     </div>
   );

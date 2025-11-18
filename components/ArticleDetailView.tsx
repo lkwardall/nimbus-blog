@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Article } from '../types';
 import { TableOfContents, Heading } from './TableOfContents';
+import { parse } from 'marked';
 
 interface ArticleDetailViewProps {
   article: Article;
@@ -54,7 +55,7 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     setIsLoading(true);
     setError(null);
 
-    const parseMarkdown = async () => {
+    const parseMarkdown = () => {
       if (!article.body) {
         if (isMounted) {
             setHtmlContent('<p class="text-gray-400">This article has no content yet.</p>');
@@ -65,10 +66,9 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
       }
       
       try {
-        const { parse } = await import('marked');
         if (!isMounted) return;
 
-        const rawHtml = parse(article.body, { gfm: true }) as string;
+        const rawHtml = parse(article.body) as string;
         
         const parser = new DOMParser();
         const doc = parser.parseFromString(rawHtml, 'text/html');
@@ -197,7 +197,7 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
         )}
       </div>
 
-      <div className="lg:grid lg:grid-cols-4 lg:gap-12 min-h-screen">
+      <div className="lg:grid lg:grid-cols-4 lg:gap-12">
         {/* TOC for larger screens (sidebar) */}
         <aside className="hidden lg:block lg:col-span-1">
           <div className="sticky top-52">

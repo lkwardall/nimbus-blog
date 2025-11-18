@@ -5,6 +5,33 @@ import { blogData as initialData } from '../data/articles';
 
 const LOCAL_STORAGE_KEY = 'discoverWellnessBlogData';
 
+const sanitizeDataForStorage = (data: Category[]): Category[] => {
+  try {
+    const sanitizedData = JSON.parse(JSON.stringify(data));
+
+    sanitizedData.forEach((category: Category) => {
+      if (category.imageUrl && category.imageUrl.startsWith('data:image')) {
+        delete category.imageUrl;
+        delete category.alt;
+      }
+      category.subcategories.forEach((subcategory: Subcategory) => {
+        subcategory.articles.forEach((article: Article) => {
+          if (article.imageUrl && article.imageUrl.startsWith('data:image')) {
+            delete article.imageUrl;
+            delete article.alt;
+          }
+        });
+      });
+    });
+
+    return sanitizedData;
+  } catch (error) {
+    console.error("Failed to sanitize data for storage, returning original data.", error);
+    return data;
+  }
+};
+
+
 const initializeAndMigrateData = (): Category[] => {
   const initialDataCopy = JSON.parse(JSON.stringify(initialData)) as Category[];
   
@@ -80,7 +107,7 @@ const initializeAndMigrateData = (): Category[] => {
 
     // Persist the newly merged data back to local storage immediately.
     // This ensures subsequent loads are based on the correct, merged state.
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mergedData));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sanitizeDataForStorage(mergedData)));
 
     return mergedData;
 
@@ -103,7 +130,8 @@ export const useBlogData = (): [
 
   useEffect(() => {
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+      const dataToStore = sanitizeDataForStorage(data);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToStore));
     } catch (error) {
       console.error("Error writing to localStorage", error);
     }
@@ -137,6 +165,16 @@ export const useBlogData = (): [
             if (!existingArticle) return prevData; // Should not happen if editing
 
             workingArticle = { ...existingArticle, ...articleData };
+        }
+
+        // Ensure subcategory on the article object is updated to reflect its primary placement.
+        // This makes sure it's correct for display (e.g., in ArticleCard) and for export.
+        if (placements.length > 0) {
+            workingArticle.subcategory = placements[0].subcategoryName;
+        } else if (isNewArticle) {
+            // A new article should have a subcategory. Assign a default if none provided,
+            // although the UI should enforce selecting at least one placement.
+            workingArticle.subcategory = 'Uncategorized';
         }
 
         const newPlacementKeys = new Set(placements.map(p => `${p.categoryName}|${p.subcategoryName}`));

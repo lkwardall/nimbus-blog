@@ -1,8 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Article, Category } from '../types';
 
-const LOCAL_STORAGE_KEY = 'discoverWellnessBlogData';
+interface ExportModalProps {
+  onClose: () => void;
+  data: Category[];
+}
 
 const toCamelCase = (str: string): string => {
   return str
@@ -18,13 +20,32 @@ const toCamelCase = (str: string): string => {
     .slice(0, 50); // Truncate to prevent excessively long names
 };
 
-const generateArticlesFileContent = (): string => {
-  const storedDataString = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (!storedDataString) {
-    return "// No data found in local storage. Make some edits first!";
-  }
+const sanitizeMarkdownForBody = (markdown: string | undefined): string => {
+    if (!markdown) return '';
+    let sanitized = markdown;
 
-  const data: Category[] = JSON.parse(storedDataString);
+    // 1. Replace "smart" punctuation with standard ASCII equivalents.
+    sanitized = sanitized
+        .replace(/[\u2018\u2019]/g, "'") // single quotes
+        .replace(/[\u201C\u201D]/g, '"') // double quotes
+        .replace(/[\u2013\u2014]/g, '-'); // en/em dashes
+
+    // 2. Remove bolding from within headings.
+    // e.g., ## **Introduction** -> ## Introduction
+    sanitized = sanitized.replace(/(^#{1,6}\s+)\*\*(.*?)\*\*/gm, '$1$2');
+
+    // 3. Remove bolding from within links.
+    // e.g., [**NimCore®** protocols](...) -> [NimCore® protocols](...)
+    sanitized = sanitized.replace(/(\[)\*\*(.*?)\*\*(\])/g, '$1$2$3');
+
+    return sanitized;
+};
+
+
+const generateArticlesFileContent = (data: Category[]): string => {
+  if (!data || data.length === 0) {
+    return "// No data available to export.";
+  }
   
   // --- Step 1: Extract unique articles and create mappings ---
   const uniqueArticles = new Map<number, Article>();
@@ -51,28 +72,34 @@ const generateArticlesFileContent = (): string => {
   
   // --- Step 2: Generate the `allArticles` object string ---
   let allArticlesString = 'const allArticles = {\n';
+  
+  // Helper to escape strings for use inside template literals (` `)
+  const escBody = (str: string | undefined) => (str || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
+
+
   varNameToArticle.forEach((article, varName) => {
     const isDraft = new Date(article.publicationDate).getFullYear() === 2099;
     
-    // Helper to escape strings for code generation
-    const esc = (str: string | undefined) => (str || '').replace(/'/g, "\\'").replace(/\n/g, '\\n');
-    const escBody = (str: string | undefined) => (str || '').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-
-
     if (isDraft || !article.body) {
-      allArticlesString += `  ${varName}: createUnpublishedArticle("${esc(article.title)}", "${esc(article.subcategory)}"),\n`;
+      // Match the cleaning logic from the original createUnpublishedArticle function
+      const cleanedTitle = (article.title || '').replace(/"/g, '');
+      allArticlesString += `  ${varName}: createUnpublishedArticle(${JSON.stringify(cleanedTitle)}, ${JSON.stringify(article.subcategory || '')}),\n`;
     } else {
+      const sanitizedBody = sanitizeMarkdownForBody(article.body);
+      // Match the cleaning logic from the original createPublishedArticle function
+      const cleanedTitle = (article.title || '').replace(/\*\*/g, '');
+      
       allArticlesString += `  ${varName}: createPublishedArticle(\n`;
-      allArticlesString += `    '${esc(article.title)}',\n`;
-      allArticlesString += `    '${esc(article.subcategory)}',\n`;
+      allArticlesString += `    ${JSON.stringify(cleanedTitle)},\n`;
+      allArticlesString += `    ${JSON.stringify(article.subcategory || '')},\n`;
       allArticlesString += `    {\n`;
       allArticlesString += `      date: '${new Date(article.publicationDate).toISOString().split('T')[0]}',\n`;
       allArticlesString += `      isFeatured: ${article.isFeatured ?? false},\n`;
-      allArticlesString += `      author: '${esc(article.author)}',\n`;
-      allArticlesString += `      description: '${esc(article.description)}',\n`;
-      allArticlesString += `      imageUrl: '${esc(article.imageUrl)}',\n`;
-      allArticlesString += `      alt: '${esc(article.alt)}',\n`;
-      allArticlesString += `      body: \`${escBody(article.body)}\`\n`;
+      allArticlesString += `      author: ${JSON.stringify(article.author || '')},\n`;
+      allArticlesString += `      description: ${JSON.stringify(article.description || '')},\n`;
+      allArticlesString += `      imageUrl: ${JSON.stringify(article.imageUrl || '')},\n`;
+      allArticlesString += `      alt: ${JSON.stringify(article.alt || '')},\n`;
+      allArticlesString += `      body: \`${escBody(sanitizedBody)}\`\n`;
       allArticlesString += `    }\n`;
       allArticlesString += `  ),\n`;
     }
@@ -83,6 +110,8 @@ const generateArticlesFileContent = (): string => {
   const blogDataString = `export const blogData: Category[] = ${JSON.stringify(
     data.map(cat => ({
       ...cat,
+      imageUrl: cat.imageUrl?.startsWith('data:image') ? undefined : cat.imageUrl,
+      alt: cat.imageUrl?.startsWith('data:image') ? undefined : cat.alt,
       subcategories: cat.subcategories.map(sub => ({
         ...sub,
         articles: sub.articles.map(art => `%%${articleIdToVarName.get(art.id)}%%`) // Placeholder
@@ -158,12 +187,16 @@ const createPublishedArticle = (title: string, subcategory: string, options: Art
   };
 };
 
-const createUnpublishedArticle = (title: string, subcategory: string): Article => ({
-  id: idCounter++,
-  title: title.replace(/"/g, ''),
-  publicationDate: new Date('2099-12-31T23:59:59Z').toISOString(), // Far future date for drafts
-  subcategory,
-});
+const createUnpublishedArticle = (title: string, subcategory: string): Article => {
+  const cleanTitle = title.replace(/"/g, '');
+  return {
+    id: idCounter++,
+    title: cleanTitle,
+    publicationDate: new Date('2099-12-31T23:59:59Z').toISOString(), // Far future date for drafts
+    subcategory,
+  };
+};
+
 
 // --- Central Article Repository ---
 // This content is generated from your edits. Copy and paste it into data/articles.ts
@@ -173,12 +206,12 @@ const createUnpublishedArticle = (title: string, subcategory: string): Article =
 };
 
 
-export const ExportModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const ExportModal: React.FC<ExportModalProps> = ({ onClose, data }) => {
   const [generatedCode, setGeneratedCode] = useState('');
   const [copyButtonText, setCopyButtonText] = useState('Copy to Clipboard');
 
   useEffect(() => {
-    setGeneratedCode(generateArticlesFileContent());
+    setGeneratedCode(generateArticlesFileContent(data));
     
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -187,7 +220,7 @@ export const ExportModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
+  }, [onClose, data]);
 
   const handleCopy = async () => {
     try {
@@ -213,8 +246,8 @@ export const ExportModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Your edits have been exported into the code format below. To make your changes permanent, copy this code and replace the entire content of the <code className="bg-black/50 px-1 py-0.5 rounded">data/articles.ts</code> file in your project.
             </p>
         </div>
-        <div className="flex-grow overflow-hidden relative">
-            <pre className="h-full overflow-auto bg-[#010202] rounded-md p-4">
+        <div className="flex-grow relative overflow-auto bg-[#010202] rounded-md">
+            <pre className="p-4">
                 <code className="text-sm text-white whitespace-pre-wrap font-mono">
                     {generatedCode}
                 </code>
