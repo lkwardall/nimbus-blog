@@ -125,6 +125,7 @@ export const useBlogData = (): [
   () => void,
   (categoryName: string, updatedCategory: Partial<Category>) => void,
   () => void,
+  (newData: Category[]) => void
 ] => {
   const [data, setData] = useState<Category[]>(initializeAndMigrateData);
 
@@ -281,5 +282,17 @@ export const useBlogData = (): [
     }
   }, []);
 
-  return [data, saveArticle, resetData, updateCategory, cycleFeaturedArticle];
+  const importData = useCallback((newData: Category[]) => {
+      if (window.confirm('This will overwrite your current local changes. Are you sure?')) {
+        // Basic validation
+        if (Array.isArray(newData) && newData.length > 0 && newData[0].name && newData[0].subcategories) {
+            setData(newData);
+            alert('Content imported successfully!');
+        } else {
+            alert('Invalid file format.');
+        }
+      }
+  }, []);
+
+  return [data, saveArticle, resetData, updateCategory, cycleFeaturedArticle, importData];
 };

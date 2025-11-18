@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Header } from './components/Header';
 import { SubHeader } from './components/SubHeader';
 import { Footer } from './components/Footer';
@@ -127,7 +127,16 @@ const CategoryDetailView: React.FC<{
   );
 };
 
-const EditModeToggle: React.FC<{ isEditMode: boolean; onToggle: () => void; onReset: () => void; onCycleFeatured: () => void; onCreate: () => void; onExport: () => void; }> = ({ isEditMode, onToggle, onReset, onCycleFeatured, onCreate, onExport }) => (
+const EditModeToggle: React.FC<{ 
+    isEditMode: boolean; 
+    onToggle: () => void; 
+    onReset: () => void; 
+    onCycleFeatured: () => void; 
+    onCreate: () => void; 
+    onExport: () => void;
+    onBackup: () => void;
+    onRestore: () => void;
+}> = ({ isEditMode, onToggle, onReset, onCycleFeatured, onCreate, onExport, onBackup, onRestore }) => (
     <div className="fixed bottom-4 right-4 z-50 bg-[#0f323e]/80 backdrop-blur-lg p-3 rounded-lg shadow-2xl border border-white/20 flex items-center space-x-4">
         <div className="flex items-center space-x-2">
             <span className={`text-sm font-medium ${!isEditMode ? 'text-white' : 'text-gray-400'}`}>Preview</span>
@@ -138,10 +147,19 @@ const EditModeToggle: React.FC<{ isEditMode: boolean; onToggle: () => void; onRe
         </div>
         {isEditMode && (
           <div className="flex items-center space-x-2 border-l border-gray-600 pl-4">
-            <button onClick={onCreate} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Create Article</button>
+            <button onClick={onCreate} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Create</button>
             <button onClick={onCycleFeatured} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Cycle Featured</button>
-            <button onClick={onExport} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Export Data</button>
-            <button onClick={onReset} className="text-xs text-gray-300 hover:text-red-400 transition-colors border border-gray-600 px-2 py-1 rounded-md">Reset Data</button>
+            
+            {/* Data Management Group */}
+            <div className="flex items-center space-x-1 border-l border-gray-600 pl-2 ml-2">
+                 <button onClick={onBackup} title="Download JSON Backup" className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-blue-600 hover:border-blue-600">Backup</button>
+                 <button onClick={onRestore} title="Restore JSON Backup" className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-blue-600 hover:border-blue-600">Restore</button>
+            </div>
+
+            <div className="flex items-center space-x-1 border-l border-gray-600 pl-2 ml-2">
+                <button onClick={onExport} className="text-xs text-gray-300 hover:text-white transition-colors border border-gray-600 px-2 py-1 rounded-md hover:bg-[#308271] hover:border-[#308271]">Project Source</button>
+                <button onClick={onReset} className="text-xs text-gray-300 hover:text-red-400 transition-colors border border-gray-600 px-2 py-1 rounded-md hover:border-red-900">Reset</button>
+            </div>
           </div>
         )}
     </div>
@@ -180,13 +198,14 @@ const FeaturedArticleCard: React.FC<{article: Article; isEditMode: boolean; onEd
 
 
 const App: React.FC = () => {
-  const [blogData, saveArticle, resetData, updateCategory, cycleFeaturedArticle] = useBlogData();
+  const [blogData, saveArticle, resetData, updateCategory, cycleFeaturedArticle, importData] = useBlogData();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
   const [selectedSubcategoryName, setSelectedSubcategoryName] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEditArticle = (article: Article) => {
     setEditingArticle(article);
@@ -233,6 +252,44 @@ const App: React.FC = () => {
     setSelectedCategoryName(null);
     setSelectedSubcategoryName(null);
     setSelectedArticle(null);
+  };
+
+  const handleBackup = () => {
+    const dataStr = JSON.stringify(blogData, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = "discover-wellness-content.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleRestoreClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileObj = event.target.files && event.target.files[0];
+    if (!fileObj) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target?.result as string);
+        importData(json);
+      } catch (error) {
+        console.error("Error parsing JSON", error);
+        alert("Failed to parse the backup file.");
+      }
+    };
+    reader.readAsText(fileObj);
+    // Reset value so same file can be selected again if needed
+    event.target.value = '';
   };
   
   const { featuredArticle, recentArticles } = useMemo(() => {
@@ -351,6 +408,16 @@ const App: React.FC = () => {
         onCycleFeatured={cycleFeaturedArticle}
         onCreate={handleCreateArticle}
         onExport={() => setIsExportModalOpen(true)}
+        onBackup={handleBackup}
+        onRestore={handleRestoreClick}
+      />
+      
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        style={{ display: 'none' }} 
+        accept=".json" 
+        onChange={handleFileChange} 
       />
 
       {editingArticle && (
