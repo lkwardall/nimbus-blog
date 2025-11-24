@@ -299,7 +299,7 @@ const App: React.FC = () => {
     uniquePublished.sort((a, b) => new Date(b.publicationDate).getTime() - new Date(a.publicationDate).getTime());
     
     const featured = uniquePublished.find(a => a.isFeatured) || uniquePublished[0] || null;
-    const recent = uniquePublished.filter(a => a.id !== featured?.id).slice(0, 6);
+    const recent = uniquePublished.filter(a => a.id !== featured?.id);
     
     return { featuredArticle: featured, recentArticles: recent };
   }, [blogData]);
