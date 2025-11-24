@@ -1,5 +1,4 @@
-
-import { Category, Article } from '@/types';
+import { Category, Article } from "@/types";
 
 let idCounter = 1;
 
@@ -45,35 +44,45 @@ interface ArticleOptions {
   alt?: string;
 }
 
-const createPublishedArticle = (title: string, subcategory: string, options: ArticleOptions): Article => {
-  const cleanTitle = title.replace(/\*\*/g, '');
-  const articleBody = options.body || createArticleBody(); 
+const createPublishedArticle = (
+  title: string,
+  subcategory: string,
+  options: ArticleOptions
+): Article => {
+  const cleanTitle = title.replace(/\*\*/g, "");
+  const articleBody = options.body || createArticleBody();
   return {
     id: idCounter++,
     title: cleanTitle,
     publicationDate: new Date(options.date).toISOString(),
     isFeatured: options.isFeatured ?? false,
     subcategory,
-    imageUrl: options.imageUrl || `https://source.unsplash.com/random/800x600?sig=${idCounter}&query=health,wellness,science`,
+    imageUrl:
+      options.imageUrl ||
+      `https://source.unsplash.com/random/800x600?sig=${idCounter}&query=health,wellness,science`,
     alt: options.alt || `An image related to the article: ${cleanTitle}`,
-    author: options.author || 'Wellness Expert',
+    author: options.author || "Wellness Expert",
     reviewedBy: options.reviewedBy,
-    description: options.description || `An in-depth look at "${cleanTitle}". Key insights and research from Discover Wellness.`,
-    link: '#',
+    description:
+      options.description ||
+      `An in-depth look at "${cleanTitle}". Key insights and research from Discover Wellness.`,
+    link: "#",
     body: articleBody,
   };
 };
 
-const createUnpublishedArticle = (title: string, subcategory: string): Article => {
-  const cleanTitle = title.replace(/"/g, '');
+const createUnpublishedArticle = (
+  title: string,
+  subcategory: string
+): Article => {
+  const cleanTitle = title.replace(/"/g, "");
   return {
     id: idCounter++,
     title: cleanTitle,
-    publicationDate: new Date('2099-12-31T23:59:59Z').toISOString(), // Far future date for drafts
+    publicationDate: new Date("2099-12-31T23:59:59Z").toISOString(), // Far future date for drafts
     subcategory,
   };
 };
-
 
 // --- Central Article Repository ---
 // This content is generated from your edits. Copy and paste it into data/articles.ts
@@ -83,11 +92,13 @@ const allArticles = {
     "Can Hair Loss Pills Cause ED?",
     "Hair Loss",
     {
-      date: '2025-12-08',
+      date: "2025-12-08",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover the truth about finasteride and erectile dysfunction: what the science reveals, who's at risk, and how personalized medicine is changing the conversation around hair loss treatment.",
-      imageUrl: "https://images.unsplash.com/photo-1590540179852-2110a54f813a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover the truth about finasteride and erectile dysfunction: what the science reveals, who's at risk, and how personalized medicine is changing the conversation around hair loss treatment.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1590540179852-2110a54f813a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1590540179852-2110a54f813a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `### 1. Mechanistic standpoint on finasteride and sexual side effects:
 
@@ -129,18 +140,20 @@ Newer options like low-dose oral minoxidil, topical finasteride (lower systemic 
 
 Finasteride can mask prostate cancer in PSA screening (lowers PSA by about 50%), so any PSA testing needs to be interpreted accordingly. There are rare reports of mood changes and depression, possibly related to neurosteroid effects. Some men experience breast tenderness or gynecomastia.
 
-The bigger issue is informed consent. Patients need realistic expectations about both benefits and risks, ideally with some personalized risk assessment rather than population averages. The future of hair loss treatment should involve pharmacogenetic profiling to identify optimal candidates for each therapy - matching the right treatment to the right patient based on their genetic makeup, not just trial and error. That's the model we use at [Nimbus Healthcare:](https://nimbushealthcare.com/hair) test first, then personalize the formulation percentages of each active ingredient to optimize efficacy while minimizing side effects.`
+The bigger issue is informed consent. Patients need realistic expectations about both benefits and risks, ideally with some personalized risk assessment rather than population averages. The future of hair loss treatment should involve pharmacogenetic profiling to identify optimal candidates for each therapy - matching the right treatment to the right patient based on their genetic makeup, not just trial and error. That's the model we use at [Nimbus Healthcare:](https://nimbushealthcare.com/hair) test first, then personalize the formulation percentages of each active ingredient to optimize efficacy while minimizing side effects.`,
     }
   ),
   theTestosteroneDeclineWhyModernMenNeedHormoneOptim: createPublishedArticle(
     "The Testosterone Decline: Why Modern Men Need Hormone Optimization More Than Ever",
     "Men's Hormone Health",
     {
-      date: '2024-07-25',
+      date: "2024-07-25",
       isFeatured: true,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover why testosterone levels have dropped 20-30% since the 1970s and how modern men can reclaim their vitality, focus, and long-term health through science-backed hormone optimization.",
-      imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3ltJTIwdHJhaW5pbmd8ZW58MHx8MHx8fDA%DD",
+      description:
+        "Discover why testosterone levels have dropped 20-30% since the 1970s and how modern men can reclaim their vitality, focus, and long-term health through science-backed hormone optimization.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3ltJTIwdHJhaW5pbmd8ZW58MHx8MHx8fDA%DD",
       alt: "Image from external URL: https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3ltJTIwdHJhaW5pbmd8ZW58MHx8MHx8fDA%3D",
       body: `## Introduction
 
@@ -201,18 +214,20 @@ Declining testosterone among men today isn't an inevitable part of aging - it's 
 3. Cleveland Clinic. "Why Testosterone Declines as Men Age." [Link](https://health.clevelandclinic.org/declining-testosterone-levels?utm_source=chatgpt.com)
 4. Harvard Health. "Testosterone, Aging, and the Mind." [Link](https://www.health.harvard.edu/newsletter_article/testosterone_aging_and_the_mind?utm_source=chatgpt.com)
 5. HSS. "Muscle Mass and Testosterone." [Link](https://www.hss.edu/health-library/move-better/muscle-mass-testosterone?utm_source=chatgpt.com)
-6. GQ. "Sperm Count Zero." [Link](https://www.gq.com/story/sperm-count-zero?utm_source=chatgpt.com)`
+6. GQ. "Sperm Count Zero." [Link](https://www.gq.com/story/sperm-count-zero?utm_source=chatgpt.com)`,
     }
   ),
   peptidesTheSecretWeaponInMensHealthLongevity: createPublishedArticle(
     "Peptides: The Secret Weapon in Men’s Health & Longevity",
     "Men's Hormone Health",
     {
-      date: '2025-11-29',
+      date: "2025-11-29",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover how peptides are revolutionizing men's health—from metabolic support and tissue repair to cognitive enhancement and longevity—and why medical oversight makes all the difference.",
-      imageUrl: "https://images.unsplash.com/photo-1560521166-117ca72366bd?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZHJvcHBlcnxlbnwwfHwwfHx8MA==&fm=jpg&q=60&w=3000",
+      description:
+        "Discover how peptides are revolutionizing men's health—from metabolic support and tissue repair to cognitive enhancement and longevity—and why medical oversight makes all the difference.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1560521166-117ca72366bd?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZHJvcHBlcnxlbnwwfHwwfHx8MA==&fm=jpg&q=60&w=3000",
       alt: "Image from external URL: https://images.unsplash.com/photo-1560521166-117ca72366bd?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZHJvcHBlcnxlbnwwfHwwfHx8MA==&fm=jpg&q=60&w=3000",
       body: `## Introduction
 
@@ -289,18 +304,20 @@ That's why Nimbus created [NimCore®](https://nimbushealthcare.com/nimcore): str
 3. Chapleau CA, et al. "Dihexa: a novel cognition-enhancing agent." *J Pharmacol Exp Ther.* 2012. [PubMed](https://pubmed.ncbi.nlm.nih.gov/22549794/)
 4. Shadiack AM, et al. "Bremelanotide (PT-141): a melanocortin agonist for sexual dysfunction." *J Sex Med.* 2004. [PubMed](https://pubmed.ncbi.nlm.nih.gov/16422874/)
 5. Rajman L, et al. "NAD+ deficiency in aging and disease." *Cell Metab.* 2018. [PubMed](https://pubmed.ncbi.nlm.nih.gov/29514064/)
-6. Allen J, et al. "Glutathione: Antioxidant defense in health and disease." *Nutrients.* 2011. [PMC](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3704526/)`
+6. Allen J, et al. "Glutathione: Antioxidant defense in health and disease." *Nutrients.* 2011. [PMC](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3704526/)`,
     }
   ),
   trtAndDepression: createPublishedArticle(
     "TRT and Depression?",
     "Men's Hormone Health",
     {
-      date: '2025-12-11',
+      date: "2025-12-11",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover why recent headlines about testosterone therapy and depression may be misleading—and learn how proper, medically supervised TRT can actually improve mood and mental health for men with confirmed low testosterone.",
-      imageUrl: "https://images.unsplash.com/photo-1493836512294-502baa1986e2?q=80&w=1490&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover why recent headlines about testosterone therapy and depression may be misleading—and learn how proper, medically supervised TRT can actually improve mood and mental health for men with confirmed low testosterone.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1493836512294-502baa1986e2?q=80&w=1490&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1493836512294-502baa1986e2?q=80&w=1490&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `### That Scary Headline About Testosterone and Depression? Here's Why Context is King.
 
@@ -326,18 +343,20 @@ So, where does the risk come from? It's not from restoring a man's hormones to a
 
 This brings us to the bottom line: [Proper, guideline-based TRT for men with confirmed hypogonadism usually improves mood.](https://nimbushealthcare.com/nimcore/nimcore-men) The alarming signals from massive database studies likely reflect the noise of mixed, real-world exposures-misuse, poor patient selection, and lack of monitoring-not the predictable, beneficial effect of well-managed therapy.
 
-For any non-medical person, trying to navigate these conflicting headlines is daunting. It highlights why proper data interpretation is key and why conversations with qualified experts are more critical than ever to help separate the signal from the noise. Before jumping to conclusions based on the next scary headline, always ask: are we looking at the spoiler, or are we looking at the driver?`
+For any non-medical person, trying to navigate these conflicting headlines is daunting. It highlights why proper data interpretation is key and why conversations with qualified experts are more critical than ever to help separate the signal from the noise. Before jumping to conclusions based on the next scary headline, always ask: are we looking at the spoiler, or are we looking at the driver?`,
     }
   ),
   beyondLoveUnpackingTheScienceOfOxytocin: createPublishedArticle(
     "Beyond Love: Unpacking the Science of Oxytocin",
     "Men's Hormone Health",
     {
-      date: '2025-12-22',
+      date: "2025-12-22",
       isFeatured: false,
       author: "Lauren Wardall, PharmDc",
-      description: "Discover how oxytocin—the \"love hormone\"—goes far beyond bonding to enhance sexual health, reduce anxiety, sharpen memory, and improve social connection in groundbreaking new ways.",
-      imageUrl: "https://images.unsplash.com/photo-1501631259223-89d4e246ed23?q=80&w=1482&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        'Discover how oxytocin—the "love hormone"—goes far beyond bonding to enhance sexual health, reduce anxiety, sharpen memory, and improve social connection in groundbreaking new ways.',
+      imageUrl:
+        "https://images.unsplash.com/photo-1501631259223-89d4e246ed23?q=80&w=1482&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1501631259223-89d4e246ed23?q=80&w=1482&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `## What is [oxytocin](https://www.lakehillsrx.com/products/oxytocin-rapid-dissolve-tablet)?
 
@@ -397,18 +416,20 @@ As [oxytocin](https://www.lakehillsrx.com/products/oxytocin-rapid-dissolve-table
 6. [Oxytocin in the anterior cingulate cortex attenuates neuropathic pain and emotional anxiety by inhibiting presynaptic long-term potentiation: Cell Reports](https://www.cell.com/cell-reports/fulltext/S2211-1247(21)00824-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS221112472100824X%3Fshowall%3Dtrue)
 7. [Oxytocin Modulates Emotion, Learning, and Memory: Insights from Advanced fMRI Analysis Techniques - ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0361923025004162)
 8. [Relations between plasma oxytocin and cortisol: The stress buffering role of social support - ScienceDirect](https://www.sciencedirect.com/science/article/pii/S235228951530031X)
-9. [Intranasal oxytocin as a treatment for anxiety and autism: From subclinical to clinical applications - PubMed](https://pubmed.ncbi.nlm.nih.gov/38579916/)`
+9. [Intranasal oxytocin as a treatment for anxiety and autism: From subclinical to clinical applications - PubMed](https://pubmed.ncbi.nlm.nih.gov/38579916/)`,
     }
   ),
   hormoneTherapyMythsFactsAndThePowerOfPersonalizati: createPublishedArticle(
     "Hormone Therapy: Myths, Facts, and the Power of Personalization",
     "Men's Hormone Health",
     {
-      date: '2026-01-12',
+      date: "2026-01-12",
       isFeatured: false,
       author: "Hannah Lerma, PharmDc",
-      description: "Discover the truth behind hormone therapy myths and learn how personalized treatment can transform your menopausal experience and long-term health.",
-      imageUrl: "https://images.unsplash.com/photo-1582848891486-19fdef73aaff?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover the truth behind hormone therapy myths and learn how personalized treatment can transform your menopausal experience and long-term health.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1582848891486-19fdef73aaff?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1582848891486-19fdef73aaff?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `### Introduction
 
@@ -464,18 +485,20 @@ The myths surrounding hormone therapy have created unnecessary fear and confusio
     
 6. Pinkerton JV, Santoro N. Compounded bioidentical hormone therapy: identifying use trends and knowledge gaps among US women. *Menopause*. 2015;22(9):926-936.
     
-    **PMID:** [25692877](https://pubmed.ncbi.nlm.nih.gov/25692877/) - https://pubmed.ncbi.nlm.nih.gov/25692877/`
+    **PMID:** [25692877](https://pubmed.ncbi.nlm.nih.gov/25692877/) - https://pubmed.ncbi.nlm.nih.gov/25692877/`,
     }
   ),
   understandingTheWomensHealthInitiativeWhatEveryWom: createPublishedArticle(
     "Understanding the Women’s Health Initiative: What Every Woman Should Know About Hormone Therapy",
     "Women's Hormone Health",
     {
-      date: '2025-11-17',
+      date: "2025-11-17",
       isFeatured: false,
       author: "Hannah Lerma, PharmDc",
-      description: "Discover how decades of research since the landmark Women's Health Initiative study have transformed our understanding of hormone therapy—and what that means for your health decisions today.",
-      imageUrl: "https://images.unsplash.com/photo-1522543558187-768b6df7c25c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how decades of research since the landmark Women's Health Initiative study have transformed our understanding of hormone therapy—and what that means for your health decisions today.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1522543558187-768b6df7c25c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1522543558187-768b6df7c25c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `### Introduction
 
@@ -547,18 +570,20 @@ Today, decisions about hormone therapy are best made through shared discussions 
     
 7. Stuenkel CA, Davis SR, Gompel A, et al. Treatment of symptoms of the menopause: an Endocrine Society clinical practice guideline. *J Clin Endocrinol Metab*. 2015;100(11):3975-4011.
     
-    **PMID:** 26444994 - https://pubmed.ncbi.nlm.nih.gov/26444994/`
+    **PMID:** 26444994 - https://pubmed.ncbi.nlm.nih.gov/26444994/`,
     }
   ),
   testosteroneTrepidation: createPublishedArticle(
     "Testosterone Trepidation",
     "Women's Hormone Health",
     {
-      date: '2025-12-17',
+      date: "2025-12-17",
       isFeatured: false,
       author: "Lauren Wardall, PharmDc",
-      description: "Discover how testosterone therapy can transform women's sexual health and well-being—despite decades of misconceptions and the absence of FDA approval.",
-      imageUrl: "https://images.unsplash.com/photo-1527137342181-19aab11a8ee8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how testosterone therapy can transform women's sexual health and well-being—despite decades of misconceptions and the absence of FDA approval.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1527137342181-19aab11a8ee8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1527137342181-19aab11a8ee8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `## Women's Health - Testosterone Trepidation
 
@@ -588,18 +613,20 @@ Programs like those available through [Nimbus](https://nimbushealthcare.com/nimc
 
 1. Boni C, Pagano M, Panebianco M, Bologna A, Sierra NM, Gnoni R, Formisano D, Bisagni G. Therapeutic activity of testosterone in metastatic breast cancer. Anticancer Res. 2014 Mar;34(3):1287-90. PMID: 24596374.
 2. Donovitz GS. A Personal Prospective on Testosterone Therapy in Women-What We Know in 2022. J Pers Med. 2022 Jul 22;12(8):1194. doi: 10.3390/jpm12081194. PMID: 35893288; PMCID: PMC9331845.
-3. Glaser RL, York AE, Dimitrakakis C. Incidence of invasive breast cancer in women treated with testosterone implants: a prospective 10-year cohort study. BMC Cancer. 2019 Dec 30;19(1):1271. doi: 10.1186/s12885-019-6457-8. PMID: 31888528; PMCID: PMC6937705.`
+3. Glaser RL, York AE, Dimitrakakis C. Incidence of invasive breast cancer in women treated with testosterone implants: a prospective 10-year cohort study. BMC Cancer. 2019 Dec 30;19(1):1271. doi: 10.1186/s12885-019-6457-8. PMID: 31888528; PMCID: PMC6937705.`,
     }
   ),
   notesFromMeOnThe3amCeoPitch: createPublishedArticle(
     "Notes from Me on the 3AM CEO Pitch",
     "AI in Healthcare",
     {
-      date: '2026-01-06',
+      date: "2026-01-06",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "A founder's journey from sleepless nights with a newborn to becoming a self-taught AI developer who builds faster than his own engineering team — all starting at 3AM.",
-      imageUrl: "https://images.unsplash.com/photo-1557176278-3326a3193580?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "A founder's journey from sleepless nights with a newborn to becoming a self-taught AI developer who builds faster than his own engineering team — all starting at 3AM.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1557176278-3326a3193580?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1557176278-3326a3193580?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `# Why I Get Up at 3AM
 
@@ -665,18 +692,20 @@ For me, 3AM is when I shape that future. It's when I combine my curiosity, my gr
 
 ## Closing Thought
 
-I may not always be the smartest in the room, but I'll always be the hardest working. That's why I code at 3AM.`
+I may not always be the smartest in the room, but I'll always be the hardest working. That's why I code at 3AM.`,
     }
   ),
   whoopIsOurAllyBut: createPublishedArticle(
     "Whoop is our ally but….",
     "Longevity",
     {
-      date: '2026-01-08',
+      date: "2026-01-08",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover how Nimbus transforms health data into personalized action—bridging the gap between monitoring and medicine to deliver not just longer lives, but healthier, more vibrant ones.",
-      imageUrl: "https://images.unsplash.com/photo-1758691462743-f9fc9e430d39?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how Nimbus transforms health data into personalized action—bridging the gap between monitoring and medicine to deliver not just longer lives, but healthier, more vibrant ones.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1758691462743-f9fc9e430d39?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1758691462743-f9fc9e430d39?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `## Where We Align
 
@@ -716,18 +745,20 @@ The dawn of the Health OS is not a competition between monitoring and medicine-i
 
 We believe this is how humanity moves from a healthcare system designed to treat illness into a health system designed to deliver vitality.
 
-**At Nimbus, we're not just measuring health. We're prescribing its future.**`
+**At Nimbus, we're not just measuring health. We're prescribing its future.**`,
     }
   ),
   revolutionizingPeptideDiscoveryHowAiIsTransforming: createPublishedArticle(
     "Revolutionizing Peptide Discovery: How AI is Transforming Functional Ingredients",
     "AI in Healthcare",
     {
-      date: '2026-01-14',
+      date: "2026-01-15",
       isFeatured: false,
       author: "Lauren Wardall, PharmDc",
-      description: "Discover how artificial intelligence is revolutionizing the search for bioactive peptides, slashing discovery times from years to days while unlocking powerful natural ingredients for anti-aging, therapeutics, and functional foods.",
-      imageUrl: " https://images.unsplash.com/photo-1748543668676-ea8241cb3886?q=80&w=2215&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how artificial intelligence is revolutionizing the search for bioactive peptides, slashing discovery times from years to days while unlocking powerful natural ingredients for anti-aging, therapeutics, and functional foods.",
+      imageUrl:
+        " https://images.unsplash.com/photo-1748543668676-ea8241cb3886?q=80&w=2215&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL:  https://images.unsplash.com/photo-1748543668676-ea8241cb3886?q=80&w=2215&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `The intersection of artificial intelligence and biotechnology is opening unprecedented opportunities in the discovery of bioactive peptides. From anti-aging skincare to therapeutic interventions, AI-driven approaches are accelerating the identification of functional ingredients that would have taken years to discover through traditional methods.
 
@@ -837,18 +868,20 @@ As we continue to refine these technologies, the synergy between artificial inte
 2. [An Artificial Intelligence Characterised Functional Ingredient, Derived from Rice, Inhibits TNF-α and Significantly Improves Physical Strength in an Inflammaging Population](https://pmc.ncbi.nlm.nih.gov/articles/PMC7555431/)
 3. [Artificial Intelligence in Functional Food Ingredient Discovery and Characterisation: A Focus on Bioactive Plant and Food Peptides](https://www.frontiersin.org/journals/genetics/articles/10.3389/fgene.2021.768979/full)
 4. [Predictive modelling and analytics for diabetes using a machine learning approach](https://www.emerald.com/aci/article/18/1-2/90/6061/Predictive-modelling-and-analytics-for-diabetes)
-5. [An Artificial-Intelligence-Discovered Functional Ingredient, NRT_N0G5IJ, Derived from Pisum sativum, Decreases HbA1c in a Prediabetic Population](https://pubmed.ncbi.nlm.nih.gov/34068000/)`
+5. [An Artificial-Intelligence-Discovered Functional Ingredient, NRT_N0G5IJ, Derived from Pisum sativum, Decreases HbA1c in a Prediabetic Population](https://pubmed.ncbi.nlm.nih.gov/34068000/)`,
     }
   ),
   ultraprocessedFoodsAssociatedWithDepressionAndTheL: createPublishedArticle(
     "Ultra-Processed Foods Associated With Depression and The Label Accuracy Of Performance Enhancing Supplements",
     "Diet",
     {
-      date: '2024-07-22',
+      date: "2024-07-22",
       isFeatured: false,
       author: "Dr. Richard Harris, MD, PharmD, MBA",
-      description: "Discover how ultra-processed foods may increase depression risk by 49% and why swapping just three servings daily for whole foods could significantly boost your mental health.",
-      imageUrl: "https://images.unsplash.com/photo-1627662168223-7df99068099a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how ultra-processed foods may increase depression risk by 49% and why swapping just three servings daily for whole foods could significantly boost your mental health.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1627662168223-7df99068099a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1627662168223-7df99068099a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `# Consumption of Ultra-processed Food and Risk of Depression
 
@@ -878,18 +911,20 @@ It's a myth that the supplement industry is unregulated. The FDA creates standar
 
 We have seen recent studies where supplements were analyzed, and there were significant discrepancies in the content and amount of specified ingredients. This study looked at supplements with performance-enhancing ingredients. Only 11% contained the component in an amount within 10% of what was on the label, and 12% had products that the FDA banned. 40%  did not contain any detectable amount of the active ingredient in question. The range of the specified ingredient could vary between 0.02% and 334% of what was present on the label.
 
-We have seen recent studies where supplements were analyzed, and there were significant discrepancies in the content and amount of specified ingredients. This study looked at supplements with performance-enhancing ingredients. Only 11% contained the component in an amount within 10% of what was on the label, and 12% had products that the FDA banned. 40%  did not contain any detectable amount of the ingredient in question. The range of the specified ingredient could vary between 0.02% and 334% of what was present on the label.`
+We have seen recent studies where supplements were analyzed, and there were significant discrepancies in the content and amount of specified ingredients. This study looked at supplements with performance-enhancing ingredients. Only 11% contained the component in an amount within 10% of what was on the label, and 12% had products that the FDA banned. 40%  did not contain any detectable amount of the ingredient in question. The range of the specified ingredient could vary between 0.02% and 334% of what was present on the label.`,
     }
   ),
   processedFoodsLifeExpectancyFoodLabelsOhMy: createPublishedArticle(
     "Processed Foods, Life Expectancy, & Food Labels - Oh My!",
     "Diet",
     {
-      date: '2024-07-21',
+      date: "2024-07-21",
       isFeatured: false,
       author: "Dr. Richard Harris, MD, PharmD, MBA",
-      description: "Discover how food labeling strategies—from traffic lights to warning labels—can reduce calorie intake by up to 31%, plus learn why earlier diabetes diagnosis dramatically shortens life expectancy and how ultra-processed foods increase your risk of multiple chronic diseases.",
-      imageUrl: "https://images.unsplash.com/photo-1757492211495-b0af6a35579d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how food labeling strategies—from traffic lights to warning labels—can reduce calorie intake by up to 31%, plus learn why earlier diabetes diagnosis dramatically shortens life expectancy and how ultra-processed foods increase your risk of multiple chronic diseases.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1757492211495-b0af6a35579d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1757492211495-b0af6a35579d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `## Effects of traffic light labelling and increased healthy range on beverage choices from vending machines
 
@@ -936,18 +971,20 @@ The authors observed a linear association between earlier age of diabetes diagno
 
 An individual diagnosed with diabetes at age 30, on average, lived 14 fewer years than someone who wasn&#39;t diagnosed with diabetes at age 30. This number was 10 years for someone diagnosed at age 40. Deaths due to cardiovascular disease accounted for 30- 45% of the reduction in life expectancy. The authors hypothesized that the larger excess mortality in younger individuals is due to cumulative exposure to poor metabolic health.
 
-Nutrition, exercise, and sleep are the big 3 of lifestyle medicine important for regulating blood sugars. We have to reverse the trend in diabetes by utilizing these strategies because medications alone are often insufficient.`
+Nutrition, exercise, and sleep are the big 3 of lifestyle medicine important for regulating blood sugars. We have to reverse the trend in diabetes by utilizing these strategies because medications alone are often insufficient.`,
     }
   ),
   howToChooseAnOmega3SupplementAPharmacistsGuide: createPublishedArticle(
     "How to Choose an Omega-3 Supplement: A Pharmacist's Guide",
     "Diet",
     {
-      date: '2025-11-19',
+      date: "2025-11-19",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Learn how to cut through supplement marketing and choose an omega-3 that actually delivers the EPA and DHA your body needs—straight from a pharmacist who reads the fine print so you don't have to.",
-      imageUrl: "https://images.unsplash.com/photo-1624362772755-4d5843e67047?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Learn how to cut through supplement marketing and choose an omega-3 that actually delivers the EPA and DHA your body needs—straight from a pharmacist who reads the fine print so you don't have to.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1624362772755-4d5843e67047?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1624362772755-4d5843e67047?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `**After a decade behind the pharmacy counter,** I can tell you the most common omega-3 question I get isn't "Should I take fish oil?" It's "Which one actually works?" Patients come in clutching massive 1,000 mg bottles from the supplement aisle, thinking bigger numbers mean better results. They don't. I've watched people waste money on the wrong formulations, underdose the right ones, and occasionally-after we do the math together-realize they've been taking glorified vegetable oil that their body can barely convert into what they actually need. Here's what I wish every patient knew before they bought their next bottle: the type of omega-3 matters more than the dose on the front label, and learning to read past the marketing can save you both money and disappointment.
 
@@ -1022,18 +1059,20 @@ Eat fish twice weekly if you can. That's the gold standard.[16] If you supplemen
 13. **Ulven SM, et al.** *Comparison of bioavailability of krill oil versus fish oil and health effects (review).* Lipids in Health and Disease. 2015.
 14. **Arterburn LM, et al.** *Algal‑Oil Capsules and Cooked Salmon Are Bioequivalent in Providing DHA.* J Acad Nutr Diet. 2008.
 15. **Craddock JC, et al.** *Algal supplementation of vegetarian eating patterns: a systematic review.* Nutrients. 2017. (Algal DHA raises blood DHA/omega‑3 index in vegetarians/vegans.)
-16. **Burdge GC, Calder PC.** *Conversion of alpha‑linolenic acid to longer‑chain n‑3 PUFAs in human adults (review).* Reproduction Nutrition Development. 2005. (ALA converts poorly to EPA/DHA.)`
+16. **Burdge GC, Calder PC.** *Conversion of alpha‑linolenic acid to longer‑chain n‑3 PUFAs in human adults (review).* Reproduction Nutrition Development. 2005. (ALA converts poorly to EPA/DHA.)`,
     }
   ),
   sittingTooLongIsAssociatedWithDementiaAndDeathsAtt: createPublishedArticle(
     "Sitting Too Long is Associated With Dementia, and Deaths Attributable to Obesity-related Cardiovascular Disease Has Increased Since 1999",
     "Exercise",
     {
-      date: '2024-07-18',
+      date: "2024-07-18",
       isFeatured: false,
       author: "Dr. Richard Harris, MD, PharmD, MBA",
-      description: "Sitting more than 10 hours a day dramatically increases dementia risk, while obesity-related heart disease deaths have tripled in two decades—but small lifestyle changes can make a significant difference.",
-      imageUrl: "https://images.unsplash.com/photo-1546572722-cd14ace698c1?q=80&w=1652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Sitting more than 10 hours a day dramatically increases dementia risk, while obesity-related heart disease deaths have tripled in two decades—but small lifestyle changes can make a significant difference.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1546572722-cd14ace698c1?q=80&w=1652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1546572722-cd14ace698c1?q=80&w=1652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `## Sedentary Behavior and Incident Dementia Among Older Adults
 
@@ -1061,18 +1100,20 @@ From 2017 to 2020, the rate of obesity increased by 10% from the preceding decad
 
 They found that the primary cardiovascular causes of death were related to ischemic heart disease (think blockages in arteries) and conditions related to hypertension (48% of adults have hypertension). They found a 3x increase in cardiovascular mortality rates related to obesity between 1999 and 2020. Studies show that even a 5% decrease in body weight can significantly improve cardiovascular risk factors such as blood pressure, blood sugars, and lipids. Despite  what you may have heard, recent evidence supports obesity as an independent and causal risk factor for cardiovascular disease.
 
-I'll be covering a study next week that has helped change my mind on how I view obesity medicine. We developed [WeightWise™](https://www.nimbushealthcare.com/weightwise) at Nimbus Healthcare to provide affordable solutions to combat the obesity epidemic.`
+I'll be covering a study next week that has helped change my mind on how I view obesity medicine. We developed [WeightWise™](https://www.nimbushealthcare.com/weightwise) at Nimbus Healthcare to provide affordable solutions to combat the obesity epidemic.`,
     }
   ),
   nadAndGlutathioneTwoPowerhouseMoleculesEveryManSho: createPublishedArticle(
     "NAD⁺ and Glutathione: Two Powerhouse Molecules Every Man Should Know About",
     "Exercise",
     {
-      date: '2025-12-16',
+      date: "2025-12-16",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover how NAD⁺ and glutathione work together to boost energy, enhance recovery, and slow aging—plus the clinical protocol that maximizes results while minimizing side effects.",
-      imageUrl: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how NAD⁺ and glutathione work together to boost energy, enhance recovery, and slow aging—plus the clinical protocol that maximizes results while minimizing side effects.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `## Introduction
 
@@ -1202,18 +1243,20 @@ At Nimbus, these insights are built into **NimCore®** , supported by **structur
 5. Watts Wellness. "Maximizing Your NAD Dose for Optimal Wellness." 2025. [Link](https://wattswellness.net/2025/01/30/maximizing-your-nad-dose-for-optimal-wellness-at-watts/)
 6. NCBI Bookshelf. "Clinical Pharmacology: Dose-Response Relationships." [Link](https://www.ncbi.nlm.nih.gov/books/NBK598455/)
 7. Regenics. "The Correct NAD Injection Dosage Per Day." [Link](https://regenics.com/the-correct-nad-injection-dosage-per-day/)
-8. European Medicines Agency (EMA). "Guideline on Strategies to Identify and Mitigate Risks for First-in-Human Trials." 2018. [PDF](https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-strategies-identify-and-mitigate-risks-first-human-and-early-clinical-trials-investigational-medicinal-products-revision-1_en.pdf)`
+8. European Medicines Agency (EMA). "Guideline on Strategies to Identify and Mitigate Risks for First-in-Human Trials." 2018. [PDF](https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-strategies-identify-and-mitigate-risks-first-human-and-early-clinical-trials-investigational-medicinal-products-revision-1_en.pdf)`,
     }
   ),
   bpc157InSportsMedicinePromisePrecautionAndTheNeedF: createPublishedArticle(
     "BPC-157 in Sports Medicine: Promise, Precaution, and the Need for Responsible Stewardship",
     "Exercise",
     {
-      date: '2025-12-04',
+      date: "2025-12-04",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover why BPC-157 could revolutionize sports recovery — and why responsible medical oversight, not unregulated online sources, is the key to unlocking its potential safely.",
-      imageUrl: "https://images.unsplash.com/photo-1638028584757-18da9c5969ac?q=80&w=1625&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover why BPC-157 could revolutionize sports recovery — and why responsible medical oversight, not unregulated online sources, is the key to unlocking its potential safely.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1638028584757-18da9c5969ac?q=80&w=1625&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1638028584757-18da9c5969ac?q=80&w=1625&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `
 Discover Wellness is your trusted partner in the journey towards a healthier, more vibrant life. We believe in a proactive, evidence-based approach to wellness, combining cutting-edge science with holistic lifestyle strategies.
@@ -1242,18 +1285,20 @@ The world of supplements can be confusing. We provide in-depth guides on powerfu
 > **Disclaimer:** The information on this website is for informational purposes only and does not constitute medical advice. Always consult with a qualified healthcare professional before making any decisions about your health or treatment.
 
 Join us at Discover Wellness as we explore the future of health and empower you to live your best life, for longer.
-  `
+  `,
     }
   ),
   youngAndNotHealthyProbioticsAppearSafeInDepression: createPublishedArticle(
     "Young And Not Healthy & Probiotics Appear Safe In Depression",
     "Mental Health",
     {
-      date: '2024-07-17',
+      date: "2024-07-17",
       isFeatured: false,
       author: "Dr. Richard Harris, MD, PharmD, MBA",
-      description: "Discover how probiotics could enhance antidepressant treatment for major depressive disorder, with a new study showing 97.2% adherence and significant improvement in depressive symptoms when added to standard therapy.",
-      imageUrl: "https://images.unsplash.com/photo-1558713057-d4b70b091888?q=80&w=1530&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover how probiotics could enhance antidepressant treatment for major depressive disorder, with a new study showing 97.2% adherence and significant improvement in depressive symptoms when added to standard therapy.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1558713057-d4b70b091888?q=80&w=1530&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1558713057-d4b70b091888?q=80&w=1530&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `## Lifestyle Behaviors and Cardiometabolic Diseases by Race and Ethnicity and Social Risk Factors Among US Young Adults, 2011 to 2018
 
@@ -1281,18 +1326,20 @@ Approximately 60% of people with MDD (major depressive disorder) have some degre
 
 They found a 97.2% adherence to probiotic therapy during the 8-week trial. No serious adverse effects were reported. Some experienced nausea and indigestion in the probiotic group, which was transient. Overall, GI symptoms decreased in both the placebo and probiotic groups. Depressive symptoms improved in the placebo and probiotic groups, but greater improvement was seen in the probiotic group. They also found evidence that the improvement in the probiotic group may be driven by improvement in anxious and somatic symptoms.
 
-This study was a small pilot study looking at the tolerability and feasibility of adding probiotics to antidepressants. It further adds to the evidence that probiotics can be recommended as adjunct treatments for depression. It is essential to select probiotics with strains of bacteria that have proven effective. This study used a probiotic with 14 strains of bacteria: Bacillus subtilis, Bifidobacterium bifidum, Bifidobacterium breve, Bifidobacterium infantis,Bifidobacterium longum, Lactobacillus acidophilus, Lactobacillus delbrueckii subsp bulgaricus, Lactobacillus casei, Lactobacillus plantarum, Lactobacillus rhamnosus, Lactobacillus helveticus, Lactobacillus salivarius, Lactococcus lactis, and Streptococcus thermophilus. As usual, discuss supplements with your doctor or pharmacist before starting them.`
+This study was a small pilot study looking at the tolerability and feasibility of adding probiotics to antidepressants. It further adds to the evidence that probiotics can be recommended as adjunct treatments for depression. It is essential to select probiotics with strains of bacteria that have proven effective. This study used a probiotic with 14 strains of bacteria: Bacillus subtilis, Bifidobacterium bifidum, Bifidobacterium breve, Bifidobacterium infantis,Bifidobacterium longum, Lactobacillus acidophilus, Lactobacillus delbrueckii subsp bulgaricus, Lactobacillus casei, Lactobacillus plantarum, Lactobacillus rhamnosus, Lactobacillus helveticus, Lactobacillus salivarius, Lactococcus lactis, and Streptococcus thermophilus. As usual, discuss supplements with your doctor or pharmacist before starting them.`,
     }
   ),
   beyondTheFirstSixMonthsWhyGlp1sAloneArentEnoughFor: createPublishedArticle(
     "Beyond the First Six Months: Why GLP-1s Alone Aren’t Enough for Lasting Weight Loss",
     "Medications",
     {
-      date: '2025-12-02',
+      date: "2025-12-02",
       isFeatured: false,
       author: "Dr. Jobby John, PharmD, FACA",
-      description: "Discover why GLP-1 medications are just the beginning—and how combining them with lasting lifestyle changes is the key to keeping weight off for good.",
-      imageUrl: "https://images.unsplash.com/photo-1445384763658-0400939829cd?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      description:
+        "Discover why GLP-1 medications are just the beginning—and how combining them with lasting lifestyle changes is the key to keeping weight off for good.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1445384763658-0400939829cd?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       alt: "Image from external URL: https://images.unsplash.com/photo-1445384763658-0400939829cd?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       body: `### The Science of Cravings: What Mice Taught Us About Motivation
 
@@ -1394,93 +1441,90 @@ At Nimbus Healthcare, our **CORE + SUSTAIN approach** is built around this truth
 
 And with **Aura** soon joining the WeightWise RX journey, patients will have continuous, personalized support every step of the way.
 
-Because sustainable weight loss isn't about chasing numbers on a scale. It's about training the body - and the brain - to live differently.`
+Because sustainable weight loss isn't about chasing numbers on a scale. It's about training the body - and the brain - to live differently.`,
     }
   ),
 };
 
-
 export const blogData: Category[] = [
   {
-    "name": "Hair & Skin",
-    "subcategories": [
+    name: "Hair & Skin",
+    subcategories: [
       {
-        "name": "Hair Loss",
-        "articles": [
-          allArticles.canHairLossPillsCauseEd
-        ]
+        name: "Hair Loss",
+        articles: [allArticles.canHairLossPillsCauseEd],
       },
       {
-        "name": "Skin Conditions",
-        "articles": []
-      }
-    ]
+        name: "Skin Conditions",
+        articles: [],
+      },
+    ],
   },
   {
-    "name": "Hormone Therapy",
-    "subcategories": [
+    name: "Hormone Therapy",
+    subcategories: [
       {
-        "name": "Men's Hormone Health",
-        "articles": [
+        name: "Men's Hormone Health",
+        articles: [
           allArticles.theTestosteroneDeclineWhyModernMenNeedHormoneOptim,
           allArticles.peptidesTheSecretWeaponInMensHealthLongevity,
           allArticles.trtAndDepression,
           allArticles.beyondLoveUnpackingTheScienceOfOxytocin,
-          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati
-        ]
+          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati,
+        ],
       },
       {
-        "name": "Women's Hormone Health",
-        "articles": [
+        name: "Women's Hormone Health",
+        articles: [
           allArticles.trtAndDepression,
           allArticles.understandingTheWomensHealthInitiativeWhatEveryWom,
           allArticles.testosteroneTrepidation,
           allArticles.beyondLoveUnpackingTheScienceOfOxytocin,
-          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati
-        ]
-      }
-    ]
+          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati,
+        ],
+      },
+    ],
   },
   {
-    "name": "Technology",
-    "subcategories": [
+    name: "Technology",
+    subcategories: [
       {
-        "name": "AI in Healthcare",
-        "articles": [
+        name: "AI in Healthcare",
+        articles: [
           allArticles.notesFromMeOnThe3amCeoPitch,
           allArticles.whoopIsOurAllyBut,
-          allArticles.revolutionizingPeptideDiscoveryHowAiIsTransforming
-        ]
-      }
-    ]
+          allArticles.revolutionizingPeptideDiscoveryHowAiIsTransforming,
+        ],
+      },
+    ],
   },
   {
-    "name": "Lifestyle",
-    "subcategories": [
+    name: "Lifestyle",
+    subcategories: [
       {
-        "name": "Diet",
-        "articles": [
+        name: "Diet",
+        articles: [
           allArticles.ultraprocessedFoodsAssociatedWithDepressionAndTheL,
           allArticles.processedFoodsLifeExpectancyFoodLabelsOhMy,
-          allArticles.howToChooseAnOmega3SupplementAPharmacistsGuide
-        ]
+          allArticles.howToChooseAnOmega3SupplementAPharmacistsGuide,
+        ],
       },
       {
-        "name": "Exercise",
-        "articles": [
+        name: "Exercise",
+        articles: [
           allArticles.sittingTooLongIsAssociatedWithDementiaAndDeathsAtt,
           allArticles.nadAndGlutathioneTwoPowerhouseMoleculesEveryManSho,
-          allArticles.bpc157InSportsMedicinePromisePrecautionAndTheNeedF
-        ]
-      }
-    ]
+          allArticles.bpc157InSportsMedicinePromisePrecautionAndTheNeedF,
+        ],
+      },
+    ],
   },
   {
-    "name": "Longevity",
-    "subcategories": [
+    name: "Longevity",
+    subcategories: [
       {
-        "name": "Longevity",
-        "articles": [
+        name: "Longevity",
+        articles: [
           allArticles.sittingTooLongIsAssociatedWithDementiaAndDeathsAtt,
           allArticles.ultraprocessedFoodsAssociatedWithDepressionAndTheL,
           allArticles.processedFoodsLifeExpectancyFoodLabelsOhMy,
@@ -1488,91 +1532,90 @@ export const blogData: Category[] = [
           allArticles.peptidesTheSecretWeaponInMensHealthLongevity,
           allArticles.bpc157InSportsMedicinePromisePrecautionAndTheNeedF,
           allArticles.whoopIsOurAllyBut,
-          allArticles.howToChooseAnOmega3SupplementAPharmacistsGuide
-        ]
-      }
-    ]
+          allArticles.howToChooseAnOmega3SupplementAPharmacistsGuide,
+        ],
+      },
+    ],
   },
   {
-    "name": "Mood & Memory",
-    "subcategories": [
+    name: "Mood & Memory",
+    subcategories: [
       {
-        "name": "Memory Support",
-        "articles": [
-          allArticles.howToChooseAnOmega3SupplementAPharmacistsGuide
-        ]
+        name: "Memory Support",
+        articles: [allArticles.howToChooseAnOmega3SupplementAPharmacistsGuide],
       },
       {
-        "name": "Mental Health",
-        "articles": [
+        name: "Mental Health",
+        articles: [
           allArticles.youngAndNotHealthyProbioticsAppearSafeInDepression,
           allArticles.ultraprocessedFoodsAssociatedWithDepressionAndTheL,
-          allArticles.trtAndDepression
-        ]
-      }
-    ]
+          allArticles.trtAndDepression,
+        ],
+      },
+    ],
   },
   {
-    "name": "Sexual Health",
-    "subcategories": [
+    name: "Sexual Health",
+    subcategories: [
       {
-        "name": "Men's Sexual Health",
-        "articles": [
+        name: "Men's Sexual Health",
+        articles: [
           allArticles.canHairLossPillsCauseEd,
           allArticles.theTestosteroneDeclineWhyModernMenNeedHormoneOptim,
           allArticles.trtAndDepression,
           allArticles.beyondLoveUnpackingTheScienceOfOxytocin,
-          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati
-        ]
+          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati,
+        ],
       },
       {
-        "name": "Women's Sexual Health",
-        "articles": [
+        name: "Women's Sexual Health",
+        articles: [
           allArticles.trtAndDepression,
           allArticles.understandingTheWomensHealthInitiativeWhatEveryWom,
           allArticles.testosteroneTrepidation,
           allArticles.beyondLoveUnpackingTheScienceOfOxytocin,
-          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati
-        ]
-      }
-    ]
+          allArticles.hormoneTherapyMythsFactsAndThePowerOfPersonalizati,
+        ],
+      },
+    ],
   },
   {
-    "name": "Weight Loss",
-    "subcategories": [
+    name: "Weight Loss",
+    subcategories: [
       {
-        "name": "Medications",
-        "articles": [
+        name: "Medications",
+        articles: [
           allArticles.beyondTheFirstSixMonthsWhyGlp1sAloneArentEnoughFor,
           allArticles.whoopIsOurAllyBut,
-          allArticles.processedFoodsLifeExpectancyFoodLabelsOhMy
-        ]
+          allArticles.processedFoodsLifeExpectancyFoodLabelsOhMy,
+        ],
       },
       {
-        "name": "Lifestyle",
-        "articles": [
+        name: "Lifestyle",
+        articles: [
           allArticles.sittingTooLongIsAssociatedWithDementiaAndDeathsAtt,
           allArticles.processedFoodsLifeExpectancyFoodLabelsOhMy,
           allArticles.beyondTheFirstSixMonthsWhyGlp1sAloneArentEnoughFor,
-          allArticles.whoopIsOurAllyBut
-        ]
-      }
-    ]
+          allArticles.whoopIsOurAllyBut,
+        ],
+      },
+    ],
   },
   {
-    "name": "Podcasts & News",
-    "subcategories": [
+    name: "Podcasts & News",
+    subcategories: [
       {
-        "name": "Podcasts",
-        "articles": []
+        name: "Podcasts",
+        articles: [],
       },
       {
-        "name": "News",
-        "articles": [
+        name: "News",
+        articles: [
           allArticles.notesFromMeOnThe3amCeoPitch,
-          allArticles.whoopIsOurAllyBut
-        ]
-      }
-    ]
-  }
+          allArticles.whoopIsOurAllyBut,
+          allArticles.revolutionizingPeptideDiscoveryHowAiIsTransforming,
+        ],
+      },
+    ],
+  },
 ];
