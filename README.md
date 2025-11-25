@@ -62,3 +62,57 @@ You can create local backups of the current app data JSON.
 
 - **To Backup:** Select **"Backup"** from the edit menu to download a current JSON file.
 - **To Restore:** Select **"Restore"** from the edit menu and upload a previously saved JSON backup file.
+
+---
+
+### Summary for Web Team
+
+Please implement the design found in **`App.tsx`**, **`index.html`** (styles), and the components in the **`components/`** folder (excluding `EditModal` and `ExportModal`). The site should function as if `isEditMode` is permanently set to `false`.
+
+To update the live site to match the **Preview Mode**, pass the files listed in **Section 1** to the web development team. They should ignore or strip out the files in **Section 2**.
+
+### 1. Core Structure & Appearance Files (The "Preview" Mode)
+
+These files create the look and feel of the reader-facing blog.
+
+- **`index.html`**
+
+  - **Role:** Defines the global CSS styles, including the specific typography, colors (`#010202` background), and the custom layouts for ads (`.article-ad-card`).
+  - **Note for Devs:** Pay attention to the `<style>` block in the `<head>`, which contains the Tailwind resets and custom classes for the article content rendering.
+
+- **`App.tsx`**
+
+  - **Role:** The main layout controller. It composes the Header, SubHeader, and the main content grid.
+  - **Note for Devs:** This file currently contains the "Edit Mode" toggle logic. They should look at the `renderContent()` function to see how the "Preview" mode is structured and ignore the `EditModeToggle` component.
+
+- **`components/ArticleDetailView.tsx`**
+
+  - **Role:** This is the most critical file for the actual blog posts. It handles:
+    - Parsing Markdown into HTML.
+    - Generating the Table of Contents dynamically.
+    - Injecting the "Nimbus" and "WeightWise" ads into the article text.
+  - **Note for Devs:** Contains an "Edit" button that should be hidden in the live version.
+
+- **`components/Header.tsx` & `components/SubHeader.tsx`**
+
+  - **Role:** The top navigation bars. The `SubHeader` contains the specific logic for the sticky scrolling category menu.
+
+- **`components/ArticleCard.tsx` & `components/CategoryCard.tsx`**
+
+  - **Role:** The components that render the grid of articles and categories on the home page.
+  - **Note for Devs:** `ArticleCard.tsx` has logic to show "Draft" or "Scheduled" badges; the live site should only render published articles.
+
+- **`components/Footer.tsx`**
+
+  - **Role:** The site-wide footer with social icons and links.
+
+- **`components/TableOfContents.tsx`**
+  - **Role:** The sidebar navigation that appears inside articles.
+
+### 2. Files to Exclude (The "Edit" Mode)
+
+Your web team does **not** need these files to build the public-facing site. These are only for the internal tool you use to write posts.
+
+- **`components/EditModal.tsx`**: The popup form used to write/edit articles.
+- **`components/ExportModal.tsx`**: The tool used to copy/paste code.
+- **`hooks/useBlogData.ts`**: Handles the local storage saving logic (unless you want a dynamic site that reads from a database, this is likely irrelevant for a static "Preview" build).
