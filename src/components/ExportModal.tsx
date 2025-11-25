@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { Article, Category } from '../types';
+import React, { useState, useEffect } from "react";
+import { Article, Category } from "../types";
 
 interface ExportModalProps {
   onClose: () => void;
@@ -11,98 +10,126 @@ interface ExportModalProps {
 
 const toCamelCase = (str: string): string => {
   return str
-    .replace(/\*\*/g, '')
-    .replace(/"/g, '')
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .split(' ')
+    .replace(/\*\*/g, "")
+    .replace(/"/g, "")
+    .replace(/[^a-zA-Z0-9\s]/g, "")
+    .split(" ")
     .map((word, index) => {
       if (index === 0) return word.toLowerCase();
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
-    .join('')
+    .join("")
     .slice(0, 50);
 };
 
 const sanitizeMarkdownForBody = (markdown: string | undefined): string => {
-    if (!markdown) return '';
-    let sanitized = markdown;
-    sanitized = sanitized
-        .replace(/[\u2018\u2019]/g, "'")
-        .replace(/[\u201C\u201D]/g, '"')
-        .replace(/[\u2013\u2014]/g, '-');
-    sanitized = sanitized.replace(/(^#{1,6}\s+)\*\*(.*?)\*\*/gm, '$1$2');
-    sanitized = sanitized.replace(/(\[)\*\*(.*?)\*\*(\])/g, '$1$2$3');
-    return sanitized;
+  if (!markdown) return "";
+  let sanitized = markdown;
+  sanitized = sanitized
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-");
+  sanitized = sanitized.replace(/(^#{1,6}\s+)\*\*(.*?)\*\*/gm, "$1$2");
+  sanitized = sanitized.replace(/(\[)\*\*(.*?)\*\*(\])/g, "$1$2$3");
+  return sanitized;
 };
 
 const generateArticlesFileContent = (data: Category[]): string => {
   if (!data || data.length === 0) return "// No data available to export.";
-  
+
   const uniqueArticles = new Map<number, Article>();
-  data.forEach(cat => cat.subcategories.forEach(sub => sub.articles.forEach(art => {
-    if (!uniqueArticles.has(art.id)) uniqueArticles.set(art.id, art);
-  })));
+  data.forEach((cat) =>
+    cat.subcategories.forEach((sub) =>
+      sub.articles.forEach((art) => {
+        if (!uniqueArticles.has(art.id)) uniqueArticles.set(art.id, art);
+      })
+    )
+  );
 
   const articleIdToVarName = new Map<number, string>();
   const varNameToArticle = new Map<string, Article>();
 
-  Array.from(uniqueArticles.values()).forEach(article => {
+  Array.from(uniqueArticles.values()).forEach((article) => {
     let varName = toCamelCase(article.title);
     let counter = 1;
     let originalVarName = varName;
-    while(varNameToArticle.has(varName)) {
-        varName = `${originalVarName}${counter++}`;
+    while (varNameToArticle.has(varName)) {
+      varName = `${originalVarName}${counter++}`;
     }
     articleIdToVarName.set(article.id, varName);
     varNameToArticle.set(varName, article);
   });
-  
-  let allArticlesString = 'const allArticles = {\n';
-  const escBody = (str: string | undefined) => (str || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
+
+  let allArticlesString = "const allArticles = {\n";
+  const escBody = (str: string | undefined) =>
+    (str || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/`/g, "\\`")
+      .replace(/\${/g, "\\${");
 
   varNameToArticle.forEach((article, varName) => {
     const isDraft = new Date(article.publicationDate).getFullYear() === 2099;
-    
+
     if (isDraft || !article.body) {
-      const cleanedTitle = (article.title || '').replace(/"/g, '');
-      allArticlesString += `  ${varName}: createUnpublishedArticle(${JSON.stringify(cleanedTitle)}, ${JSON.stringify(article.subcategory || '')}),\n`;
+      const cleanedTitle = (article.title || "").replace(/"/g, "");
+      allArticlesString += `  ${varName}: createUnpublishedArticle(${JSON.stringify(
+        cleanedTitle
+      )}, ${JSON.stringify(article.subcategory || "")}),\n`;
     } else {
       const sanitizedBody = sanitizeMarkdownForBody(article.body);
-      const cleanedTitle = (article.title || '').replace(/\*\*/g, '');
-      
+      const cleanedTitle = (article.title || "").replace(/\*\*/g, "");
+
       allArticlesString += `  ${varName}: createPublishedArticle(\n`;
       allArticlesString += `    ${JSON.stringify(cleanedTitle)},\n`;
-      allArticlesString += `    ${JSON.stringify(article.subcategory || '')},\n`;
+      allArticlesString += `    ${JSON.stringify(
+        article.subcategory || ""
+      )},\n`;
       allArticlesString += `    {\n`;
-      allArticlesString += `      date: '${new Date(article.publicationDate).toISOString().split('T')[0]}',\n`;
-      allArticlesString += `      isFeatured: ${article.isFeatured ?? false},\n`;
-      allArticlesString += `      author: ${JSON.stringify(article.author || '')},\n`;
+      allArticlesString += `      date: '${
+        new Date(article.publicationDate).toISOString().split("T")[0]
+      }',\n`;
+      allArticlesString += `      isFeatured: ${
+        article.isFeatured ?? false
+      },\n`;
+      allArticlesString += `      author: ${JSON.stringify(
+        article.author || ""
+      )},\n`;
       if (article.reviewedBy) {
-        allArticlesString += `      reviewedBy: ${JSON.stringify(article.reviewedBy)},\n`;
+        allArticlesString += `      reviewedBy: ${JSON.stringify(
+          article.reviewedBy
+        )},\n`;
       }
-      allArticlesString += `      description: ${JSON.stringify(article.description || '')},\n`;
-      allArticlesString += `      imageUrl: ${JSON.stringify(article.imageUrl || '')},\n`;
-      allArticlesString += `      alt: ${JSON.stringify(article.alt || '')},\n`;
+      allArticlesString += `      description: ${JSON.stringify(
+        article.description || ""
+      )},\n`;
+      allArticlesString += `      imageUrl: ${JSON.stringify(
+        article.imageUrl || ""
+      )},\n`;
+      allArticlesString += `      alt: ${JSON.stringify(article.alt || "")},\n`;
       allArticlesString += `      body: \`${escBody(sanitizedBody)}\`\n`;
       allArticlesString += `    }\n`;
       allArticlesString += `  ),\n`;
     }
   });
-  allArticlesString += '};\n';
+  allArticlesString += "};\n";
 
   const blogDataString = `export const blogData: Category[] = ${JSON.stringify(
-    data.map(cat => ({
+    data.map((cat) => ({
       ...cat,
-      imageUrl: cat.imageUrl?.startsWith('data:image') ? undefined : cat.imageUrl,
-      alt: cat.imageUrl?.startsWith('data:image') ? undefined : cat.alt,
-      subcategories: cat.subcategories.map(sub => ({
+      imageUrl: cat.imageUrl?.startsWith("data:image")
+        ? undefined
+        : cat.imageUrl,
+      alt: cat.imageUrl?.startsWith("data:image") ? undefined : cat.alt,
+      subcategories: cat.subcategories.map((sub) => ({
         ...sub,
-        articles: sub.articles.map(art => `%%${articleIdToVarName.get(art.id)}%%`)
-      }))
+        articles: sub.articles.map(
+          (art) => `%%${articleIdToVarName.get(art.id)}%%`
+        ),
+      })),
     })),
     null,
     2
-  ).replace(/"%%(.*?)%%"/g, 'allArticles.$1')};`; 
+  ).replace(/"%%(.*?)%%"/g, "allArticles.$1")};`;
 
   const staticHeader = `
 import { Category, Article } from '@/types';
@@ -191,232 +218,267 @@ const createUnpublishedArticle = (title: string, subcategory: string): Article =
 // --- System File Content Generators ---
 
 const SYSTEM_FILES = {
-  'README.md': `# Discover Wellness Blog
+  "README.md": `# Discover Wellness Blog
 
-A modern, React-based blog application built with Vite and Tailwind CSS.
+A modern, React-based blog application built with Vite, React 19, and Tailwind CSS v4.
 
 ## Getting Started
 
 1.  **Install Dependencies:**
     \`\`\`bash
-    npm install
+    pnpm install
     \`\`\`
 
 2.  **Run Development Server:**
     \`\`\`bash
-    npm run dev
+    pnpm dev
     \`\`\`
 
 3.  **Build for Production:**
     \`\`\`bash
-    npm run build
+    pnpm build
     \`\`\`
-
-## Project Structure
-
-*   \`index.tsx\`: Main entry point.
-*   \`App.tsx\`: Main application component.
-*   \`data/articles.ts\`: Contains all blog content and configuration.
-*   \`components/\`: UI components (Header, ArticleCard, etc.).
 `,
 
-  'package.json': JSON.stringify({
-    "name": "discover-wellness-blog",
-    "private": true,
-    "version": "1.0.0",
-    "type": "module",
-    "scripts": {
-      "dev": "vite",
-      "build": "tsc && vite build",
-      "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-      "preview": "vite preview"
+  "package.json": JSON.stringify(
+    {
+      name: "discover-wellness",
+      private: true,
+      version: "0.0.0",
+      type: "module",
+      scripts: {
+        dev: "vite",
+        build: "vite build",
+        preview: "vite preview",
+      },
+      dependencies: {
+        marked: "13.0.1",
+        react: "^19.2.0",
+        "react-dom": "^19.2.0",
+        "react-router-dom": "^7.1.5",
+        "react-markdown": "^9.0.3",
+        "remark-gfm": "^4.0.0",
+      },
+      devDependencies: {
+        "@tailwindcss/vite": "^4.0.0",
+        "@types/node": "^22.10.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^4.3.4",
+        tailwindcss: "^4.0.0",
+        typescript: "~5.7.2",
+        vite: "^6.0.0",
+      },
     },
-    "dependencies": {
-      "@google/genai": "^1.29.0",
-      "marked": "^13.0.1",
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0"
-    },
-    "devDependencies": {
-      "@types/react": "^18.2.66",
-      "@types/react-dom": "^18.2.22",
-      "@vitejs/plugin-react": "^4.2.1",
-      "autoprefixer": "^10.4.19",
-      "postcss": "^8.4.38",
-      "tailwindcss": "^3.4.3",
-      "typescript": "^5.2.2",
-      "vite": "^5.2.0"
-    }
-  }, null, 2),
+    null,
+    2
+  ),
 
-  'index.html': `<!doctype html>
+  "index.html": `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Discover Wellness</title>
-    <!-- Fonts or other head elements can go here -->
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>`,
 
-  'tsconfig.json': JSON.stringify({
-    "compilerOptions": {
-      "target": "ES2020",
-      "useDefineForClassFields": true,
-      "lib": ["ES2020", "DOM", "DOM.Iterable"],
-      "module": "ESNext",
-      "skipLibCheck": true,
-      "moduleResolution": "bundler",
-      "allowImportingTsExtensions": true,
-      "resolveJsonModule": true,
-      "isolatedModules": true,
-      "noEmit": true,
-      "jsx": "react-jsx",
-      "strict": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "noFallthroughCasesInSwitch": true,
-      "baseUrl": "./",
-      "paths": {
-        "@/*": ["./*"]
-      }
+  "tsconfig.json": JSON.stringify(
+    {
+      compilerOptions: {
+        target: "ES2022",
+        useDefineForClassFields: true,
+        lib: ["ES2022", "DOM", "DOM.Iterable"],
+        module: "ESNext",
+        skipLibCheck: true,
+        moduleResolution: "bundler",
+        allowImportingTsExtensions: true,
+        resolveJsonModule: true,
+        isolatedModules: true,
+        noEmit: true,
+        jsx: "react-jsx",
+        strict: true,
+        baseUrl: ".",
+        paths: {
+          "@/*": ["./src/*"],
+        },
+      },
+      include: ["src"],
+      exclude: ["node_modules"],
     },
-    "include": ["**/*.ts", "**/*.tsx"],
-    "exclude": ["node_modules"]
-  }, null, 2),
+    null,
+    2
+  ),
 
-  'vite.config.ts': `import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+  "vite.config.ts": `import path from 'path';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-})`,
+});`,
 
-  'tailwind.config.js': `/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}`,
+  "src/index.css": `@import "tailwindcss";
 
-  'postcss.config.js': `export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}`,
+@theme {
+  --color-primary: #308271;
+  --color-primary-hover: #45a08d;
+  --color-bg-dark: #0f323e;
+}
+
+/* Article Content Typography */
+.article-content h1 {
+  @apply text-4xl font-extrabold text-white mb-6;
+}
+/* ... (paste the rest of your index.css content here if you want it exported) ... */
+`,
 };
 
 export const ExportModal: React.FC<ExportModalProps> = ({ onClose, data }) => {
-  const [activeTab, setActiveTab] = useState<'content' | 'system'>('content');
-  const [selectedSystemFile, setSelectedSystemFile] = useState<keyof typeof SYSTEM_FILES>('package.json');
-  const [generatedCode, setGeneratedCode] = useState('');
-  const [copyButtonText, setCopyButtonText] = useState('Copy to Clipboard');
+  const [activeTab, setActiveTab] = useState<"content" | "system">("content");
+  const [selectedSystemFile, setSelectedSystemFile] =
+    useState<keyof typeof SYSTEM_FILES>("package.json");
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [copyButtonText, setCopyButtonText] = useState("Copy to Clipboard");
 
   useEffect(() => {
-    if (activeTab === 'content') {
-        setGeneratedCode(generateArticlesFileContent(data));
+    if (activeTab === "content") {
+      setGeneratedCode(generateArticlesFileContent(data));
     } else {
-        setGeneratedCode(SYSTEM_FILES[selectedSystemFile]);
+      setGeneratedCode(SYSTEM_FILES[selectedSystemFile]);
     }
   }, [onClose, data, activeTab, selectedSystemFile]);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(generatedCode);
-      setCopyButtonText('Copied!');
-      setTimeout(() => setCopyButtonText('Copy to Clipboard'), 2000);
+      setCopyButtonText("Copied!");
+      setTimeout(() => setCopyButtonText("Copy to Clipboard"), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
-      setCopyButtonText('Copy Failed');
-      setTimeout(() => setCopyButtonText('Copy to Clipboard'), 2000);
+      console.error("Failed to copy text: ", err);
+      setCopyButtonText("Copy Failed");
+      setTimeout(() => setCopyButtonText("Copy to Clipboard"), 2000);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-75" aria-modal="true" role="dialog">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-75"
+      aria-modal="true"
+      role="dialog"
+    >
       <div className="bg-[#0f323e] border border-gray-700 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
         <div className="p-6 pb-0 flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-white">Project Source</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-white">&times;</button>
+          <h2 className="text-2xl font-bold text-white">Project Source</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            &times;
+          </button>
         </div>
 
         {/* Tabs */}
         <div className="px-6 mt-6 border-b border-gray-700 flex space-x-6">
-             <button 
-                onClick={() => setActiveTab('content')}
-                className={`pb-3 text-sm font-medium transition-colors ${activeTab === 'content' ? 'text-[#308271] border-b-2 border-[#308271]' : 'text-gray-400 hover:text-white'}`}
-            >
-                Content Data (data/articles.ts)
-            </button>
-            <button 
-                onClick={() => setActiveTab('system')}
-                className={`pb-3 text-sm font-medium transition-colors ${activeTab === 'system' ? 'text-[#308271] border-b-2 border-[#308271]' : 'text-gray-400 hover:text-white'}`}
-            >
-                System Files (Scaffold)
-            </button>
+          <button
+            onClick={() => setActiveTab("content")}
+            className={`pb-3 text-sm font-medium transition-colors ${
+              activeTab === "content"
+                ? "text-[#308271] border-b-2 border-[#308271]"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            Content Data (data/articles.ts)
+          </button>
+          <button
+            onClick={() => setActiveTab("system")}
+            className={`pb-3 text-sm font-medium transition-colors ${
+              activeTab === "system"
+                ? "text-[#308271] border-b-2 border-[#308271]"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            System Files (Scaffold)
+          </button>
         </div>
 
         <div className="p-6 flex-grow overflow-hidden flex flex-col">
-            {activeTab === 'content' && (
-                <div className="bg-[#0a2129] p-4 rounded-md mb-4 flex-shrink-0">
-                    <p className="text-sm text-gray-300">
-                        To save your article edits permanently, copy this code and replace the contents of <code className="bg-black/50 px-1 py-0.5 rounded">data/articles.ts</code>.
-                    </p>
-                </div>
-            )}
-
-            {activeTab === 'system' && (
-                <div className="mb-4 flex-shrink-0">
-                    <p className="text-sm text-gray-300 mb-4">
-                        These files are required to run this app outside of this environment (e.g. on GitHub or CodeSandbox). Create these files in the root of your project folder.
-                    </p>
-                    <div className="flex space-x-2 overflow-x-auto pb-2">
-                        {(Object.keys(SYSTEM_FILES) as Array<keyof typeof SYSTEM_FILES>).map(fileName => (
-                            <button
-                                key={fileName}
-                                onClick={() => setSelectedSystemFile(fileName)}
-                                className={`px-3 py-1.5 rounded-md text-xs font-mono transition-colors ${selectedSystemFile === fileName ? 'bg-[#308271] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
-                            >
-                                {fileName}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <div className="flex-grow relative overflow-auto bg-[#010202] rounded-md border border-gray-700">
-                <div className="absolute top-2 right-2 px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded opacity-70">
-                    {activeTab === 'content' ? 'data/articles.ts' : selectedSystemFile}
-                </div>
-                <pre className="p-4">
-                    <code className="text-sm text-white whitespace-pre-wrap font-mono">
-                        {generatedCode}
-                    </code>
-                </pre>
+          {activeTab === "content" && (
+            <div className="bg-[#0a2129] p-4 rounded-md mb-4 flex-shrink-0">
+              <p className="text-sm text-gray-300">
+                To save your article edits permanently, copy this code and
+                replace the contents of{" "}
+                <code className="bg-black/50 px-1 py-0.5 rounded">
+                  data/articles.ts
+                </code>
+                .
+              </p>
             </div>
+          )}
+
+          {activeTab === "system" && (
+            <div className="mb-4 flex-shrink-0">
+              <p className="text-sm text-gray-300 mb-4">
+                These files are required to run this app outside of this
+                environment (e.g. on GitHub or CodeSandbox). Create these files
+                in the root of your project folder.
+              </p>
+              <div className="flex space-x-2 overflow-x-auto pb-2">
+                {(
+                  Object.keys(SYSTEM_FILES) as Array<keyof typeof SYSTEM_FILES>
+                ).map((fileName) => (
+                  <button
+                    key={fileName}
+                    onClick={() => setSelectedSystemFile(fileName)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-mono transition-colors ${
+                      selectedSystemFile === fileName
+                        ? "bg-[#308271] text-white"
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    {fileName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex-grow relative overflow-auto bg-[#010202] rounded-md border border-gray-700">
+            <div className="absolute top-2 right-2 px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded opacity-70">
+              {activeTab === "content"
+                ? "data/articles.ts"
+                : selectedSystemFile}
+            </div>
+            <pre className="p-4">
+              <code className="text-sm text-white whitespace-pre-wrap font-mono">
+                {generatedCode}
+              </code>
+            </pre>
+          </div>
         </div>
 
         <div className="p-6 pt-0 flex justify-end space-x-3">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">Close</button>
-          <button onClick={handleCopy} className="px-4 py-2 bg-[#308271] text-white rounded-md font-semibold hover:bg-[#45a08d] transition-colors w-40">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+          >
+            Close
+          </button>
+          <button
+            onClick={handleCopy}
+            className="px-4 py-2 bg-[#308271] text-white rounded-md font-semibold hover:bg-[#45a08d] transition-colors w-40"
+          >
             {copyButtonText}
           </button>
         </div>

@@ -338,7 +338,9 @@ const App: React.FC = () => {
     cycleFeaturedArticle,
     importData,
   ] = useBlogData();
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(() => {
+    return localStorage.getItem("isEditMode") === "true";
+  });
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(
     null
   );
