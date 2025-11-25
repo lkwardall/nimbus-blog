@@ -116,3 +116,58 @@ Your web team does **not** need these files to build the public-facing site. The
 - **`components/EditModal.tsx`**: The popup form used to write/edit articles.
 - **`components/ExportModal.tsx`**: The tool used to copy/paste code.
 - **`hooks/useBlogData.ts`**: Handles the local storage saving logic (unless you want a dynamic site that reads from a database, this is likely irrelevant for a static "Preview" build).
+
+---
+
+### To update the Nimbus modules while keeping the same structure and appearance, marketing team needs to focus on the `ADS` object within the `ArticleDetailView.tsx` file.
+
+**Steps for Marketing:**
+
+1.  **Locate the File:** Open `lkwardall/nimbus-blog/nimbus-blog-34243cf264a1038bd48998c179743b649a10bc93/components/ArticleDetailView.tsx`.
+2.  **Find the `ADS` Object:** Look for the constant named `ADS` at the beginning of the file. This object defines the content for each ad type ("WeightWise", "NimCore", "Nimbus").
+3.  **Update Content:** Within the template function for each ad, they can modify the following HTML elements:
+    - **Image URL:** Change the `src` attribute of the `<img>` tag to the new image URL.
+    - **Alt Text:** Update the `alt` attribute of the `<img>` tag for accessibility.
+    - **Tag:** Change the text inside the `<span class="article-ad-tag">` element (e.g., "Metabolic Health").
+    - **Title:** Update the text inside the `<div class="article-ad-title">` element (e.g., "WeightWise®: Biology, Not Willpower").
+    - **Description:** Modify the text inside the `<div class="article-ad-text">` element to change the ad copy.
+    - **Link URL:** Change the `href` attribute of the `<a>` tag to point to the desired destination URL.
+    - **Button Text:** Update the text content of the `<a>` tag (e.g., "Check Eligibility").
+
+**Important:** They should _only_ change the text and URLs within these tags. They must **not** change the class names (like `article-ad-card`, `article-ad-image-wrapper`, `article-ad-content-wrapper`, etc.) or the HTML structure itself, as these are what control the appearance and layout defined in `index.html`.
+
+**Example:**
+
+To change the "WeightWise" module image and title:
+
+```typescript
+// BEFORE
+WeightWise: {
+  keywords: ['WeightWise'],
+  template: () => `
+    <div class="article-ad-card">
+      <div class="article-ad-image-wrapper">
+        <img src="OLD_IMAGE_URL.webp" alt="WeightWise metabolic health" />
+      </div>
+      <div class="article-ad-content-wrapper">
+        <div class="article-ad-text-content">
+          <span class="article-ad-tag">Metabolic Health</span>
+          <div class="article-ad-title">OLD TITLE</div>
+          ...
+```
+
+```typescript
+// AFTER
+WeightWise: {
+  keywords: ['WeightWise'],
+  template: () => `
+    <div class="article-ad-card">
+      <div class="article-ad-image-wrapper">
+        <img src="NEW_IMAGE_URL.webp" alt="New Alt Text" />
+      </div>
+      <div class="article-ad-content-wrapper">
+        <div class="article-ad-text-content">
+          <span class="article-ad-tag">Metabolic Health</span>
+          <div class="article-ad-title">NEW TITLE</div>
+          ...
+```
