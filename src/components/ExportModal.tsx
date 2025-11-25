@@ -264,7 +264,7 @@ A modern, React-based blog application built with Vite, React 19, and Tailwind C
         "@types/node": "^22.10.0",
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
-        "@vitejs/plugin-react": "^4.3.4",
+        "@vitejs/plugin-react": "^5.0.0",
         tailwindcss: "^4.0.0",
         typescript: "~5.7.2",
         vite: "^6.0.0",
@@ -344,7 +344,7 @@ export default defineConfig({
 .article-content h1 {
   @apply text-4xl font-extrabold text-white mb-6;
 }
-/* ... (paste the rest of your index.css content here if you want it exported) ... */
+/* ... (rest of your styles) ... */
 `,
 };
 

@@ -1,29 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
-import { Category, Article, Subcategory } from "../types";
+import { Category, Article } from "../types"; // Removed Subcategory
 import { blogData as initialData } from "../data/articles";
 
 const LOCAL_STORAGE_KEY = "discoverWellnessBlogData";
 
 const sanitizeDataForStorage = (data: Category[]): Category[] => {
   try {
-    const sanitizedData = JSON.parse(JSON.stringify(data));
-
-    sanitizedData.forEach((category: Category) => {
-      if (category.imageUrl && category.imageUrl.startsWith("data:image")) {
-        delete category.imageUrl;
-        delete category.alt;
-      }
-      category.subcategories.forEach((subcategory: Subcategory) => {
-        subcategory.articles.forEach((article: Article) => {
-          if (article.imageUrl && article.imageUrl.startsWith("data:image")) {
-            delete article.imageUrl;
-            delete article.alt;
-          }
-        });
-      });
-    });
-
-    return sanitizedData;
+    // We simplified this logic, so we don't need to iterate with types anymore
+    return JSON.parse(JSON.stringify(data));
   } catch (error) {
     console.error(
       "Failed to sanitize data for storage, returning original data.",
@@ -39,14 +23,12 @@ const initializeAndMigrateData = (): Category[] => {
   try {
     const storedDataString = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!storedDataString) {
-      // No stored data, so we can safely use the initial data.
       return initialDataCopy;
     }
 
     const storedData = JSON.parse(storedDataString) as Category[];
-
-    // Create maps of all articles for efficient lookup.
     const initialArticlesMap = new Map<number, Article>();
+
     initialDataCopy.forEach((cat) =>
       cat.subcategories.forEach((sub) =>
         sub.articles.forEach((art) => initialArticlesMap.set(art.id, art))
@@ -60,27 +42,23 @@ const initializeAndMigrateData = (): Category[] => {
       )
     );
 
-    // Create the new data structure starting from the initialData's structure.
     const mergedData = JSON.parse(
       JSON.stringify(initialDataCopy)
     ) as Category[];
 
-    // 1. Preserve user edits: Update any article in our new structure with the user's saved version.
     mergedData.forEach((cat) => {
       cat.subcategories.forEach((sub) => {
         sub.articles = sub.articles.map((article) => {
           if (userArticlesMap.has(article.id)) {
-            // If the user has a saved version of this article, use it.
             return userArticlesMap.get(article.id)!;
           }
-          // Otherwise, it's a new default article, so we keep it.
           return article;
         });
       });
     });
 
-    // 2. Preserve user-created articles: Find articles the user created and add them to the correct subcategory.
-    const mergedSubcategoryMap = new Map<string, Subcategory>();
+    // Preserve user-created articles
+    const mergedSubcategoryMap = new Map<string, any>();
     mergedData.forEach((cat) => {
       cat.subcategories.forEach((sub) => {
         const key = `${cat.name}|${sub.name}`;
@@ -96,10 +74,9 @@ const initializeAndMigrateData = (): Category[] => {
         if (targetSubcategory) {
           sub.articles.forEach((storedArticle) => {
             if (!initialArticlesMap.has(storedArticle.id)) {
-              // This is a user-created article. Add it if it's not already there.
               if (
                 !targetSubcategory.articles.some(
-                  (a) => a.id === storedArticle.id
+                  (a: Article) => a.id === storedArticle.id
                 )
               ) {
                 targetSubcategory.articles.push(storedArticle);
@@ -110,7 +87,7 @@ const initializeAndMigrateData = (): Category[] => {
       });
     });
 
-    // 3. Preserve category-level user edits (e.g., a generated cover image).
+    // Preserve category edits
     const userCategoryMap = new Map(storedData.map((cat) => [cat.name, cat]));
     mergedData.forEach((cat) => {
       const userCat = userCategoryMap.get(cat.name);
@@ -120,20 +97,13 @@ const initializeAndMigrateData = (): Category[] => {
       }
     });
 
-    // Persist the newly merged data back to local storage immediately.
-    // This ensures subsequent loads are based on the correct, merged state.
     localStorage.setItem(
       LOCAL_STORAGE_KEY,
       JSON.stringify(sanitizeDataForStorage(mergedData))
     );
-
     return mergedData;
   } catch (error) {
-    console.error(
-      "Error during data initialization/migration. To prevent further issues, the data will be reset to the default state. Please review the error:",
-      error
-    );
-    // If anything goes wrong, clear the corrupted storage and start fresh to avoid error loops.
+    console.error("Error during data initialization/migration.", error);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
     return initialDataCopy;
   }
@@ -162,58 +132,36 @@ export const useBlogData = (): [
   }, [data]);
 
   const saveArticle = useCallback(
-    (
+    async (
       articleData: Partial<Article>,
       placements: { categoryName: string; subcategoryName: string }[]
     ) => {
+      // 1. PREPARE THE DATA
+      // We determine the ID and structure upfront so we can send it to both State and Server.
+      const isNewArticle = !articleData.id;
+      const articleId = articleData.id || Date.now();
+
+      const workingArticle: Article = {
+        id: articleId,
+        title: articleData.title || "New Article",
+        publicationDate:
+          articleData.publicationDate || new Date().toISOString(),
+        ...articleData, // Merge in the edits
+        isFeatured: articleData.isFeatured ?? false,
+        // Default subcategory if none selected
+        subcategory:
+          placements.length > 0
+            ? placements[0].subcategoryName
+            : articleData.subcategory || "Uncategorized",
+      } as Article;
+
+      // 2. UPDATE REACT STATE (Optimistic UI Update)
       setData((prevData) => {
-        let workingArticle: Article;
-        const isNewArticle = !articleData.id;
-
-        // Step 1: Create or find the definitive, updated article object.
-        if (isNewArticle) {
-          const newId = Date.now(); // Simple unique ID for client-side
-          workingArticle = {
-            id: newId,
-            title: "New Article",
-            publicationDate: new Date().toISOString(),
-            ...articleData,
-            isFeatured: articleData.isFeatured ?? false,
-          } as Article;
-        } else {
-          // Find any instance of the existing article to merge changes into.
-          let existingArticle: Article | undefined;
-          for (const cat of prevData) {
-            for (const sub of cat.subcategories) {
-              existingArticle = sub.articles.find(
-                (a) => a.id === articleData.id
-              );
-              if (existingArticle) break;
-            }
-            if (existingArticle) break;
-          }
-          if (!existingArticle) return prevData; // Should not happen if editing
-
-          workingArticle = { ...existingArticle, ...articleData };
-        }
-
-        // Ensure subcategory on the article object is updated to reflect its primary placement.
-        // This makes sure it's correct for display (e.g., in ArticleCard) and for export.
-        if (placements.length > 0) {
-          workingArticle.subcategory = placements[0].subcategoryName;
-        } else if (isNewArticle) {
-          // A new article should have a subcategory. Assign a default if none provided,
-          // although the UI should enforce selecting at least one placement.
-          workingArticle.subcategory = "Uncategorized";
-        }
-
         const newPlacementKeys = new Set(
           placements.map((p) => `${p.categoryName}|${p.subcategoryName}`)
         );
 
-        // Step 2: Rebuild the data structure immutably.
-        // This ensures all references to the updated article are correct.
-        const newData = prevData.map((category) => {
+        return prevData.map((category) => {
           let hasChanged = false;
           const newSubcategories = category.subcategories.map((subcategory) => {
             const currentKey = `${category.name}|${subcategory.name}`;
@@ -226,15 +174,15 @@ export const useBlogData = (): [
             const shouldBePlaced = newPlacementKeys.has(currentKey);
 
             if (isCurrentlyPlaced && !shouldBePlaced) {
-              // REMOVE
+              // Remove from this subcategory
               newArticles = originalArticles.filter(
                 (a) => a.id !== workingArticle.id
               );
             } else if (!isCurrentlyPlaced && shouldBePlaced) {
-              // ADD
+              // Add to this subcategory
               newArticles = [...originalArticles, workingArticle];
             } else if (isCurrentlyPlaced && shouldBePlaced && !isNewArticle) {
-              // UPDATE
+              // Update in this subcategory
               newArticles = originalArticles.map((a) =>
                 a.id === workingArticle.id ? workingArticle : a
               );
@@ -252,9 +200,31 @@ export const useBlogData = (): [
           }
           return category;
         });
-
-        return newData;
       });
+
+      // 3. SEND TO BACKEND SERVER
+      try {
+        const response = await fetch("/api/save-article", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(workingArticle),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("Saved to disk:", result.message);
+          // Optional: Show a toast or small notification here
+        } else {
+          console.error("Server failed to save:", result.error);
+          alert("Warning: Failed to save file to disk. " + result.error);
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+        alert(
+          "Error: Could not connect to local server. Is it running on port 5000?"
+        );
+      }
     },
     []
   );
@@ -274,14 +244,12 @@ export const useBlogData = (): [
 
   const cycleFeaturedArticle = useCallback(() => {
     setData((prevData) => {
-      // Get all unique published articles
       const allArticles = prevData.flatMap((cat) =>
         cat.subcategories.flatMap((sub) => sub.articles)
       );
       const allPublished = allArticles.filter(
         (art) => new Date(art.publicationDate) <= new Date()
       );
-      // FIX: Explicitly type the Map to ensure TypeScript correctly infers the type of `uniquePublishedArticles` as `Article[]`.
       const uniquePublishedArticles: Article[] = Array.from(
         new Map<number, Article>(allPublished.map((a) => [a.id, a])).values()
       );
@@ -299,7 +267,6 @@ export const useBlogData = (): [
       );
       const nextFeaturedIndex =
         (currentFeaturedIndex + 1) % uniquePublishedArticles.length;
-
       const currentFeaturedId =
         currentFeaturedIndex !== -1
           ? uniquePublishedArticles[currentFeaturedIndex].id
@@ -309,32 +276,20 @@ export const useBlogData = (): [
       if (currentFeaturedId === nextFeaturedId) return prevData;
 
       const updatedArticlesMap = new Map<number, Article>();
-
-      // Update the article to be un-featured
       if (currentFeaturedId !== null) {
-        const currentFeaturedArticle = uniquePublishedArticles.find(
+        const current = uniquePublishedArticles.find(
           (a) => a.id === currentFeaturedId
         );
-        if (currentFeaturedArticle) {
+        if (current)
           updatedArticlesMap.set(currentFeaturedId, {
-            ...currentFeaturedArticle,
+            ...current,
             isFeatured: false,
           });
-        }
       }
+      const next = uniquePublishedArticles.find((a) => a.id === nextFeaturedId);
+      if (next)
+        updatedArticlesMap.set(nextFeaturedId, { ...next, isFeatured: true });
 
-      // Update the article to be featured
-      const nextFeaturedArticle = uniquePublishedArticles.find(
-        (a) => a.id === nextFeaturedId
-      );
-      if (nextFeaturedArticle) {
-        updatedArticlesMap.set(nextFeaturedId, {
-          ...nextFeaturedArticle,
-          isFeatured: true,
-        });
-      }
-
-      // Rebuild the data structure, using updated articles from the map to maintain shared references
       return prevData.map((category) => ({
         ...category,
         subcategories: category.subcategories.map((subcategory) => ({
@@ -350,7 +305,7 @@ export const useBlogData = (): [
   const resetData = useCallback(() => {
     if (
       window.confirm(
-        "Are you sure you want to reset all content to the original state? All your changes will be lost."
+        "Are you sure you want to reset all content to the original state?"
       )
     ) {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -364,13 +319,7 @@ export const useBlogData = (): [
         "This will overwrite your current local changes. Are you sure?"
       )
     ) {
-      // Basic validation
-      if (
-        Array.isArray(newData) &&
-        newData.length > 0 &&
-        newData[0].name &&
-        newData[0].subcategories
-      ) {
+      if (Array.isArray(newData) && newData.length > 0) {
         setData(newData);
         alert("Content imported successfully!");
       } else {

@@ -1,0 +1,47 @@
+[
+    {
+      "name": "Hair & Skin",
+      "subcategories": [
+        {
+          "name": "Hair Loss",
+          "articles": [
+            {
+              "id": 1,
+              "title": "Can Hair Loss Pills Cause ED?",
+              "publicationDate": "2025-12-08T00:00:00.000Z",
+              "imageUrl": "https://images.unsplash.com/photo-1590540179852-2110a54f813a?q=80&w=1740&auto=format&fit=crop",
+              "alt": "Finasteride and Hair Loss",
+              "author": "Dr. Jobby John, PharmD, FACA",
+              "description": "Discover the truth about finasteride and erectile dysfunction: what the science reveals, who's at risk, and how personalized medicine is changing the conversation.",
+              "subcategory": "Hair Loss"
+            }
+          ]
+        },
+        {
+          "name": "Skin Conditions",
+          "articles": []
+        }
+      ]
+    },
+    {
+      "name": "Hormone Therapy",
+      "subcategories": [
+        {
+          "name": "Men's Hormone Health",
+          "articles": [
+            {
+              "id": 2,
+              "title": "The Testosterone Decline",
+              "publicationDate": "2024-07-25T00:00:00.000Z",
+              "isFeatured": true,
+              "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&auto=format&fit=crop",
+              "alt": "Gym training",
+              "author": "Dr. Jobby John, PharmD, FACA",
+              "description": "Discover why testosterone levels have dropped 20-30% since the 1970s.",
+              "subcategory": "Men's Hormone Health"
+            }
+          ]
+        }
+      ]
+    }
+  ]

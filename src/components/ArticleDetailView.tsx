@@ -74,7 +74,6 @@ const AdCard: React.FC<{ type: keyof typeof AD_DATA }> = ({ type }) => {
   );
 };
 
-// Utility to generate IDs for TOC matching
 const slugify = (text: string) => {
   return text
     .toString()
@@ -86,7 +85,6 @@ const slugify = (text: string) => {
     .replace(/--+/g, "-");
 };
 
-// Throttles a function to prevent it from being called too frequently.
 const throttle = (func: (...args: any[]) => void, limit: number) => {
   let inThrottle: boolean;
   return function (this: any, ...args: any[]) {
@@ -107,36 +105,73 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
   relatedArticles = [],
   onSelectArticle,
 }) => {
+  // --- STATE VARIABLES ---
+  const [fetchedBody, setFetchedBody] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeHeadingId, setActiveHeadingId] = useState<string | null>(null);
 
-  // 1. Extract Headings for TOC
+  // --- EFFECTS & DATA FETCHING ---
+
+  // Fetch content from public folder if it's not already in the article object
+  useEffect(() => {
+    if (article.body) {
+      setFetchedBody(null); // Reset if switching to an article that has a body
+      return;
+    }
+
+    const fetchBody = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/content/articles/${article.id}.json`);
+        if (res.ok) {
+          const json = await res.json();
+          setFetchedBody(json.body);
+        } else {
+          setError("Could not load article content.");
+        }
+      } catch (e) {
+        setError("Connection error.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBody();
+  }, [article.id, article.body]);
+
+  // Determine what text to render: priority to local edits (article.body), fallback to fetched
+  const contentToRender = article.body || fetchedBody;
+
+  // --- MEMOIZED VALUES ---
+
+  // Generate Table of Contents from the rendered text
   const headings = useMemo<Heading[]>(() => {
-    if (!article.body) return [];
-    // Match both ## (H2) and ### (H3)
-    const matches = [...article.body.matchAll(/^(#{2,3})\s+(.+)$/gm)];
+    if (!contentToRender) return [];
+    const matches = [...contentToRender.matchAll(/^(#{2,3})\s+(.+)$/gm)];
     return matches.map((match, index) => {
       const text = match[2];
       let id = slugify(text);
-      if (!id) id = `heading-${index}`; // Fallback for empty text
+      if (!id) id = `heading-${index}`;
 
       return {
         id,
         text,
-        level: match[1].length, // 2 or 3
+        level: match[1].length,
       };
     });
-  }, [article.body]);
+  }, [contentToRender]);
 
-  // 2. Split content into sections (by H2) to allow ad insertion
+  // Split content into sections for Ad insertion
   const sections = useMemo(() => {
-    if (!article.body) return [];
-    // Splits the markdown by H2 headers, keeping the delimiter in the array so we don't lose the header itself
-    return article.body.split(/(?=^##\s)/m);
-  }, [article.body]);
+    if (!contentToRender) return [];
+    return contentToRender.split(/(?=^##\s)/m);
+  }, [contentToRender]);
 
-  // 3. Determine Ad Strategy
+  // Determine which ads to show based on keywords
   const adStrategy = useMemo(() => {
-    const text = article.body || "";
+    const text = contentToRender || "";
     const plan: { index: number; type: keyof typeof AD_DATA }[] = [];
 
     let firstAdType: keyof typeof AD_DATA = "Nimbus";
@@ -144,16 +179,13 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     else if (text.includes("NimCore") || text.includes("Testosterone"))
       firstAdType = "NimCore";
 
-    // Insert first ad after the 2nd section (Index 1)
     if (sections.length > 1) plan.push({ index: 1, type: firstAdType });
-
-    // Insert second ad after the 4th section (Index 3), always general Nimbus unless first was general
     if (sections.length > 3) plan.push({ index: 3, type: "Nimbus" });
 
     return plan;
-  }, [article.body, sections.length]);
+  }, [contentToRender, sections.length]);
 
-  // Scroll Spy for TOC
+  // Scroll Spy for TOC Highlighting
   useEffect(() => {
     if (headings.length === 0) return;
 
@@ -168,14 +200,12 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
         const element = document.getElementById(heading.id);
         if (element) {
           const rect = element.getBoundingClientRect();
-          // Find header that is above the offset line (scrolled past) but closest to it
           if (rect.top < topOffset && rect.top > bestCandidate.position) {
             bestCandidate = { id: heading.id, position: rect.top };
           }
         }
       }
 
-      // Fallback to first heading if at top
       if (!bestCandidate.id && headings.length > 0) {
         const firstEl = document.getElementById(headings[0].id);
         if (
@@ -193,17 +223,35 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     window.addEventListener("scroll", throttledScrollHandler, {
       passive: true,
     });
-    handleScroll(); // Initial check
+    handleScroll();
 
     return () => window.removeEventListener("scroll", throttledScrollHandler);
   }, [headings]);
 
-  if (!article.body)
-    return <div className="text-gray-400">No content available.</div>;
+  // --- RENDER ---
+
+  if (isLoading)
+    return (
+      <div className="text-white text-center py-12 animate-pulse">
+        Loading article content...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="text-red-400 text-center py-12 bg-red-900/20 rounded-lg mx-auto max-w-2xl mt-8">
+        {error}
+      </div>
+    );
+  if (!contentToRender)
+    return (
+      <div className="text-gray-400 text-center py-12">
+        No content available.
+      </div>
+    );
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Top Bar */}
+      {/* Navigation Bar */}
       <div className="flex justify-between items-center mb-6">
         <button
           onClick={onBack}
@@ -247,7 +295,7 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
 
         <div className="lg:col-span-3">
           <article className="pb-12">
-            {/* Header */}
+            {/* Article Header */}
             <header className="mb-8">
               <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
                 {article.title}
@@ -280,7 +328,7 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
               )}
             </header>
 
-            {/* Main Image */}
+            {/* Hero Image */}
             {article.imageUrl && (
               <div className="mb-8 rounded-xl overflow-hidden shadow-2xl">
                 <img
@@ -303,7 +351,7 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
               )}
             </div>
 
-            {/* Article Content */}
+            {/* Article Body with Ads */}
             <div className="article-content">
               {sections.map((section, index) => {
                 const adToRender = adStrategy.find((p) => p.index === index);
@@ -313,7 +361,6 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
-                        // Custom renderers to attach IDs for TOC
                         h2: ({ node, children, ...props }) => {
                           const text = String(children);
                           const id = slugify(text) || `heading-${index}`;
@@ -337,14 +384,13 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
                       {section}
                     </ReactMarkdown>
 
-                    {/* Inject Ad if needed */}
                     {adToRender && <AdCard type={adToRender.type} />}
                   </React.Fragment>
                 );
               })}
             </div>
 
-            {/* Read Next */}
+            {/* Related Articles */}
             {relatedArticles && relatedArticles.length > 0 && (
               <section className="mt-24 border-t border-[#215b69]/30 pt-12">
                 <h2 className="text-3xl font-bold text-white mb-8">
